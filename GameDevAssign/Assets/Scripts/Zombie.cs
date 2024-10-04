@@ -7,12 +7,12 @@ public class Zombie : Movement
     // Start is called before the first frame update
     void Start()
     {
-        
+        base.Start();  // This calls the Movement Start method
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        base.Update();  // This calls the Movement Update method
     }
 }

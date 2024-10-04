@@ -130,8 +130,8 @@ GameObject:
   - component: {fileID: 269406004}
   - component: {fileID: 269406003}
   - component: {fileID: 269406002}
-  - component: {fileID: 269406001}
   - component: {fileID: 269406005}
+  - component: {fileID: 269406006}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -139,21 +139,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &269406001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269406000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a97825ea4c186c4448b3a752ef9569aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 3
-  jumpHeight: 10
-  grounded: 0
 --- !u!95 &269406002
 Animator:
   serializedVersion: 7
@@ -271,7 +256,21 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
+--- !u!114 &269406006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269406000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 331e943f1b1400145840998c615a931b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 2
+  smoothTime: 0.1
 --- !u!1 &1698254687
 GameObject:
   m_ObjectHideFlags: 0

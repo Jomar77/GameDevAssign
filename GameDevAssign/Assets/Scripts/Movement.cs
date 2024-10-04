@@ -1,57 +1,65 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 public class Movement : MonoBehaviour
 {
-    public float moveSpeed = 3f;
+    public float moveSpeed = 1f;  // Maximum movement speed
+    public float smoothTime = 0.1f; // Time for smooth damp
+    private Vector2 currentVelocity = Vector2.zero; // Current velocity for SmoothDamp
+
     private Animator anim;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    private bool wasVertical;
 
-    void Start()
+    public void Start()
     {
-        anim =
-        GetComponent<Animator>();
+        anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
     }
 
-    void Update()
+    public void Update()
     {
-        anim.SetFloat("Speed", rb.velocity.y);
-        anim.SetBool("IsRunningHor", false);
-        anim.SetBool("IsRunningVer", false);
-        if
-        (Input.GetKey(KeyCode.D))
+        // Target velocity starts at zero (stopped)
+        Vector2 targetVelocity = Vector2.zero;
+
+        // Detect movement input and set target velocity
+        if (Input.GetKey(KeyCode.D)) // Move right
         {
             sr.flipX = false;
-            rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
-            anim.SetBool("IsRunningHor", true);
-            anim.SetBool("IsRunningVer", false);
+            targetVelocity = new Vector2(moveSpeed, rb.velocity.y);
+            anim.SetBool("IsRunning", true);
+            anim.SetBool("IsVertical", false);
+            wasVertical = false;
         }
-        else if
-        (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A)) // Move left
         {
             sr.flipX = true;
-            rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
-            anim.SetBool("IsRunningHor", true);
-            anim.SetBool("IsRunningVer", false);
+            targetVelocity = new Vector2(-moveSpeed, rb.velocity.y);
+            anim.SetBool("IsRunning", true);
+            anim.SetBool("IsVertical", false);
+            wasVertical = false;
         }
-        else if
-        (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S)) // Move down
         {
-            sr.Equals("Assets/Sprites/New Piskel (2).png");
-            rb.velocity = new Vector2(-moveSpeed, rb.velocity.x);
-            anim.SetBool("IsRunningHor", false);
-            anim.SetBool("IsRunningVer", true);
+            targetVelocity = new Vector2(rb.velocity.x, -moveSpeed);
+            anim.SetBool("IsRunning", true);
+            anim.SetBool("IsVertical", true);
+            wasVertical = true;
         }
-        else if
-        (Input.GetKey(KeyCode.W))
+        else if (Input.GetKey(KeyCode.W)) // Move up
         {
-            rb.velocity = new Vector2(moveSpeed, rb.velocity.x);
-            anim.SetBool("IsRunningVer", true);
-            anim.SetBool("IsRunningHor", false);
+            targetVelocity = new Vector2(rb.velocity.x, moveSpeed);
+            anim.SetBool("IsRunning", true);
+            anim.SetBool("IsVertical", true);
+            wasVertical = true;
+        }
+        else
+        {
+            anim.SetBool("IsRunning", false);
+        }
 
-        }
+        // Smoothly damp towards the target velocity
+        rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
     }
 }
