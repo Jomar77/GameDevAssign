@@ -8,14 +8,19 @@ public class GameManager : MonoBehaviour
     public GameObject playerPrefab;
     private List<Vector2> spawnPoints = new List<Vector2>();
     private GameObject[] players;
-    public Vector2 mapBounds = new Vector2(1920f, 1800f); // Map dimensions
-    public float safeDistance = 200f; // Minimum safe distance between players
+    public Vector2 mapBounds;
+    public float safeDistance = 5f; // Minimum safe distance between players
 
     public int numberOfPlayers;
 
     void Start()
     {
         players = new GameObject[numberOfPlayers];
+
+        Camera cam = Camera.main;
+        float cameraHeight = 2f * cam.orthographicSize;
+        float cameraWidth = cameraHeight * cam.aspect;
+        mapBounds = new Vector2(cameraWidth, cameraHeight);
 
         for (int i = 0; i < numberOfPlayers; i++)
         {
@@ -25,11 +30,31 @@ public class GameManager : MonoBehaviour
             players[i] = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
             players[i].GetComponent<Character>().playerNumber = i + 1;
         }
+
+        AssignOneZombie();
     }
 
     void Update()
     {
 
+    }
+
+
+    void AssignOneZombie()
+    {
+        int zombieIndex = Random.Range(0, numberOfPlayers);
+
+        for (int i = 0; i < numberOfPlayers; i++)
+        {
+            if (i == zombieIndex)
+            {
+                players[i].GetComponent<Character>().state = PlayerState.isZombie;
+            }
+            else
+            {
+                players[i].GetComponent<Character>().state = PlayerState.isCiv;
+            }
+        }
     }
 
     Vector2 GenerateSpawnPoint()
@@ -60,6 +85,8 @@ public class GameManager : MonoBehaviour
 
         return spawnPoint;
     }
+
+
 
 
 

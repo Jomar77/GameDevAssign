@@ -26,6 +26,8 @@ public class Character : MonoBehaviour
     public void Update()
     {
 
+
+
         handleInput(playerNumber);
 
         UpdateState();
@@ -52,6 +54,9 @@ public class Character : MonoBehaviour
         }
 
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
+
+
+        ClampToCameraBounds();
 
     }
 
@@ -97,6 +102,19 @@ public class Character : MonoBehaviour
     {
         zombie.SetActive(state == PlayerState.isZombie);
         civ.SetActive(state == PlayerState.isCiv);
+
+        GetCC2d.enabled = true;
+
+        // If you want to disable the other collider explicitly
+        if (state == PlayerState.isCiv)
+        {
+            zombie.GetComponent<CapsuleCollider2D>().enabled = false;
+        }
+        else if (state == PlayerState.isZombie)
+        {
+            civ.GetComponent<CapsuleCollider2D>().enabled = false;
+        }
+
     }
 
     public Animator GetAnimator
@@ -132,6 +150,21 @@ public class Character : MonoBehaviour
     }
 
 
+    public CapsuleCollider2D GetCC2d
+    {
+        get
+        {
+            if (state == PlayerState.isCiv)
+            {
+                return civ.GetComponent<CapsuleCollider2D>();
+            }
+            else
+            {
+                return zombie.GetComponent<CapsuleCollider2D>();
+            }
+        }
+    }
+
 
     public void OnTriggerEnter(Collider other)
     {
@@ -147,5 +180,28 @@ public class Character : MonoBehaviour
                 this.state = PlayerState.isZombie;
             }
         }
+    }
+
+
+    void ClampToCameraBounds()
+    {
+        // Get the main camera's boundaries
+        Camera cam = Camera.main;
+        float cameraHeight = 2f * cam.orthographicSize;
+        float cameraWidth = cameraHeight * cam.aspect;
+
+        // Calculate the boundaries
+        float minX = cam.transform.position.x - cameraWidth / 2f;
+        float maxX = cam.transform.position.x + cameraWidth / 2f;
+        float minY = cam.transform.position.y - cameraHeight / 2f;
+        float maxY = cam.transform.position.y + cameraHeight / 2f;
+
+        // Clamp the player's position
+        Vector3 clampedPosition = transform.position;
+        clampedPosition.x = Mathf.Clamp(clampedPosition.x, minX, maxX);
+        clampedPosition.y = Mathf.Clamp(clampedPosition.y, minY, maxY);
+
+        // Apply the clamped position back to the player
+        transform.position = clampedPosition;
     }
 }
