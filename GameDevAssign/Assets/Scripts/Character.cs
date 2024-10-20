@@ -65,34 +65,29 @@ public class Character : MonoBehaviour
         Vector2 targetVelocity = Vector2.zero;
 
 
-        if (Input.GetKey(rightKey))
+        if (Input.GetKey(leftKey))
         {
-            targetVelocity = new Vector2(moveSpeed, rb.velocity.y);
-            GetAnimator.SetBool("IsRunning", true);
-            GetAnimator.SetBool("IsVertical", false);
-            Debug.Log("hi");
+            transform.Rotate(0, 0, moveSpeed * 50 * Time.deltaTime);
         }
-        else if (Input.GetKey(leftKey))
+        else if (Input.GetKey(rightKey))
         {
-            targetVelocity = new Vector2(-moveSpeed, rb.velocity.y);
-            GetAnimator.SetBool("IsRunning", true);
-            GetAnimator.SetBool("IsVertical", false);
+            transform.Rotate(0, 0, -moveSpeed * 50 * Time.deltaTime);
         }
-        else if (Input.GetKey(downKey))
+        if (Input.GetKey(downKey))
         {
-            targetVelocity = new Vector2(rb.velocity.x, -moveSpeed);
+            targetVelocity = -transform.up * moveSpeed;
             GetAnimator.SetBool("IsRunning", true);
-            GetAnimator.SetBool("IsVertical", true);
         }
         else if (Input.GetKey(upKey))
         {
-            targetVelocity = new Vector2(rb.velocity.x, moveSpeed);
             GetAnimator.SetBool("IsRunning", true);
-            GetAnimator.SetBool("IsVertical", true);
+
+            targetVelocity = transform.up * moveSpeed;
         }
         else
         {
             GetAnimator.SetBool("IsRunning", false);
+
         }
 
         return targetVelocity;
@@ -164,23 +159,49 @@ public class Character : MonoBehaviour
             }
         }
     }
-
-
-    public void OnTriggerEnter(Collider other)
+    void OnCollisionEnter2D(Collision2D other)
     {
-        //Character thisCharacter = GetComponent<Character>();
-        Character otherCharacter = other.GetComponent<Character>();
+        // Get the GameManager instance to track the number of zombies
+        GameManager gameManager = FindObjectOfType<GameManager>();
+
+        // Check if the other object has the Character script
+        Character otherCharacter = other.gameObject.GetComponent<Character>();
 
         if (otherCharacter != null)
         {
-            if (otherCharacter.state == PlayerState.isZombie)
+            // Both players can interact with each other
+            if (this.state != otherCharacter.state) // Only switch if their states are different
             {
+                if (this.state == PlayerState.isCiv && otherCharacter.state == PlayerState.isZombie)
+                {
+                    // This civilian becomes a zombie
+                    this.state = PlayerState.isZombie;
+                    otherCharacter.state = PlayerState.isCiv;
 
-                otherCharacter.state = PlayerState.isCiv;
-                this.state = PlayerState.isZombie;
+                    Debug.Log($"{this.name} has been infected by {otherCharacter.name}!");
+
+                }
+                else if (this.state == PlayerState.isZombie && otherCharacter.state == PlayerState.isCiv)
+                {
+                    // This zombie infects the civilian
+                    otherCharacter.state = PlayerState.isZombie;
+                    this.state = PlayerState.isCiv;
+
+                    Debug.Log($"{otherCharacter.name} has been infected by {this.name}!");
+                }
+
+                // Update the states of both players
+                this.UpdateState();
+                otherCharacter.UpdateState();
+
+                // Update the zombie count in the GameManager
+                gameManager.UpdateZombieCount();
             }
         }
     }
+
+
+
 
 
     void ClampToCameraBounds()

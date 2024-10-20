@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public float safeDistance = 5f; // Minimum safe distance between players
 
     public int numberOfPlayers;
+    private int zombieCount; // Keep track of the number of zombies
+
 
     void Start()
     {
@@ -55,6 +57,8 @@ public class GameManager : MonoBehaviour
                 players[i].GetComponent<Character>().state = PlayerState.isCiv;
             }
         }
+
+        zombieCount = 1;
     }
 
     Vector2 GenerateSpawnPoint()
@@ -84,6 +88,34 @@ public class GameManager : MonoBehaviour
         } while (!isValid);
 
         return spawnPoint;
+    }
+
+
+    public void UpdateZombieCount()
+    {
+        // Reset the zombie count
+        zombieCount = 0;
+
+        // Count how many players are currently zombies
+        foreach (GameObject player in players)
+        {
+            if (player.GetComponent<Character>().state == PlayerState.isZombie)
+            {
+                zombieCount++;
+            }
+        }
+
+        // Ensure there is always one zombie in the game
+        if (zombieCount == 0)
+        {
+            // If no zombie is left, make a random player the new zombie
+            int newZombieIndex = Random.Range(0, numberOfPlayers);
+            players[newZombieIndex].GetComponent<Character>().state = PlayerState.isZombie;
+            players[newZombieIndex].GetComponent<Character>().UpdateState();
+
+            zombieCount = 1; // Correct the zombie count
+            Debug.Log("A new zombie has been assigned!");
+        }
     }
 
 
