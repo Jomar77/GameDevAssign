@@ -17,6 +17,10 @@ public class Character : MonoBehaviour
     public GameObject civ;
     public PlayerState state = PlayerState.isCiv;
 
+    // Timer fields
+    public float timeRemaining = 60f; // 1 minute timer
+    private bool timerIsRunning = false;
+
     Vector2 targetVelocity;
     public void Start()
     {
@@ -31,6 +35,12 @@ public class Character : MonoBehaviour
         handleInput(playerNumber);
 
         UpdateState();
+
+
+        if (timerIsRunning)
+        {
+            UpdateTimer();
+        }
     }
 
     void handleInput(int playerNum)
@@ -45,10 +55,10 @@ public class Character : MonoBehaviour
             case 2:
                 targetVelocity = Movement(KeyCode.UpArrow, KeyCode.LeftArrow, KeyCode.DownArrow, KeyCode.RightArrow);
                 break;
-            case 3: // Player 3 (IJKL)
+            case 3:
                 targetVelocity = Movement(KeyCode.I, KeyCode.J, KeyCode.K, KeyCode.L);
                 break;
-            case 4: // Player 4 (Numpad 8456)
+            case 4:
                 targetVelocity = Movement(KeyCode.Keypad8, KeyCode.Keypad4, KeyCode.Keypad5, KeyCode.Keypad6);
                 break;
         }
@@ -97,20 +107,11 @@ public class Character : MonoBehaviour
     {
         zombie.SetActive(state == PlayerState.isZombie);
         civ.SetActive(state == PlayerState.isCiv);
-
         GetCC2d.enabled = true;
 
-        // If you want to disable the other collider explicitly
-        if (state == PlayerState.isCiv)
-        {
-            zombie.GetComponent<CapsuleCollider2D>().enabled = false;
-        }
-        else if (state == PlayerState.isZombie)
-        {
-            civ.GetComponent<CapsuleCollider2D>().enabled = false;
-        }
-
+        Debug.Log("State updated: " + (state == PlayerState.isZombie ? "Zombie" : "Civilian"));
     }
+
 
     public Animator GetAnimator
     {
@@ -128,30 +129,6 @@ public class Character : MonoBehaviour
     }
 
 
-
-    public SpriteRenderer GetSpriteRenderer
-    {
-        get
-        {
-            if (state == PlayerState.isCiv)
-            {
-                return civ.GetComponent<SpriteRenderer>();
-            }
-            else
-            {
-                return zombie.GetComponent<SpriteRenderer>();
-            }
-        }
-    }
-
-
-
-
-    /// <summary>
-    /// SAMPLE COMMENBTS
-    /// </summary>
-
-
     public CapsuleCollider2D GetCC2d
     {
         get
@@ -166,47 +143,42 @@ public class Character : MonoBehaviour
             }
         }
     }
+    public float stateSwitchCooldown = 1.0f;
+    private float lastStateSwitchTime;
+
     void OnCollisionEnter2D(Collision2D other)
     {
-        // Get the GameManager instance to track the number of zombies
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return; // Prevent switching too fast
 
-        // Check if the other object has the Character script
         Character otherCharacter = other.gameObject.GetComponent<Character>();
 
         if (otherCharacter != null)
         {
-            // Both players can interact with each other
-            if (this.state != otherCharacter.state) // Only switch if their states are different
+            if (this.state == PlayerState.isCiv && otherCharacter.state == PlayerState.isZombie)
             {
-                if (this.state == PlayerState.isCiv && otherCharacter.state == PlayerState.isZombie)
-                {
-                    // This civilian becomes a zombie
-                    this.state = PlayerState.isZombie;
-                    otherCharacter.state = PlayerState.isCiv;
+                this.state = PlayerState.isZombie;
+                otherCharacter.state = PlayerState.isCiv;
 
-                    Debug.Log($"{this.name} has been infected by {otherCharacter.name}!");
-
-                }
-                else if (this.state == PlayerState.isZombie && otherCharacter.state == PlayerState.isCiv)
-                {
-                    // This zombie infects the civilian
-                    otherCharacter.state = PlayerState.isZombie;
-                    this.state = PlayerState.isCiv;
-
-                    Debug.Log($"{otherCharacter.name} has been infected by {this.name}!");
-                }
-
-                // Update the states of both players
-                this.UpdateState();
-                otherCharacter.UpdateState();
-
-                // Update the zombie count in the GameManager
-                gameManager.UpdateZombieCount();
+                Debug.Log("Civilian turned into Zombie!");
             }
+            else if (this.state == PlayerState.isZombie && otherCharacter.state == PlayerState.isCiv)
+            {
+                otherCharacter.state = PlayerState.isZombie;
+                this.state = PlayerState.isCiv;
+
+                Debug.Log("Zombie infected a civilian!");
+
+
+            }
+
+
+
+            this.UpdateState();
+            otherCharacter.UpdateState();
+
+            lastStateSwitchTime = Time.time; // Record the time of the last state switch
         }
     }
-
 
 
 
@@ -232,4 +204,22 @@ public class Character : MonoBehaviour
         // Apply the clamped position back to the player
         transform.position = clampedPosition;
     }
+
+    void UpdateTimer()
+    {
+        if (timeRemaining > 0)
+        {
+            timeRemaining -= Time.deltaTime;
+        }
+        else
+        {
+            timeRemaining = 0;
+            // Handle timer end logic (e.g., reset or change state)
+            Debug.Log($"Player {playerNumber} timer finished!");
+            // You can change the player state here if needed
+            // Example: state = PlayerState.isCiv; UpdateState(); 
+        }
+    }
+
+
 }

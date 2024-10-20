@@ -93,28 +93,26 @@ public class GameManager : MonoBehaviour
 
     public void UpdateZombieCount()
     {
-        // Reset the zombie count
-        zombieCount = 0;
+        int zombieCount = 0;
 
-        // Count how many players are currently zombies
+        // Loop through all players and count the zombies
         foreach (GameObject player in players)
         {
-            if (player.GetComponent<Character>().state == PlayerState.isZombie)
+            Character character = player.GetComponent<Character>();
+            if (character.state == PlayerState.isZombie)
             {
                 zombieCount++;
             }
         }
 
-        // Ensure there is always one zombie in the game
+        // Ensure there's always at least one zombie
         if (zombieCount == 0)
         {
-            // If no zombie is left, make a random player the new zombie
+            // Assign a random civilian as the new zombie
             int newZombieIndex = Random.Range(0, numberOfPlayers);
             players[newZombieIndex].GetComponent<Character>().state = PlayerState.isZombie;
             players[newZombieIndex].GetComponent<Character>().UpdateState();
-
-            zombieCount = 1; // Correct the zombie count
-            Debug.Log("A new zombie has been assigned!");
+            Debug.Log("New zombie assigned!");
         }
     }
 
