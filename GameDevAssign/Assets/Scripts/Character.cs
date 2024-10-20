@@ -145,6 +145,13 @@ public class Character : MonoBehaviour
     }
 
 
+
+
+    /// <summary>
+    /// SAMPLE COMMENBTS
+    /// </summary>
+
+
     public CapsuleCollider2D GetCC2d
     {
         get
