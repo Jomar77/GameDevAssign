@@ -21,7 +21,11 @@ public class Character : MonoBehaviour
     public float timeRemaining = 60f; // 1 minute timer
     private bool timerIsRunning = false;
 
+    public float stateSwitchCooldown = 1.0f;
+    private float lastStateSwitchTime;
+
     Vector2 targetVelocity;
+
     public void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -29,13 +33,8 @@ public class Character : MonoBehaviour
 
     public void Update()
     {
-
-
-
         handleInput(playerNumber);
-
         UpdateState();
-
 
         if (timerIsRunning)
         {
@@ -45,10 +44,8 @@ public class Character : MonoBehaviour
 
     void handleInput(int playerNum)
     {
-
         switch (playerNum)
         {
-
             case 1:
                 targetVelocity = Movement(KeyCode.W, KeyCode.A, KeyCode.S, KeyCode.D);
                 break;
@@ -64,16 +61,12 @@ public class Character : MonoBehaviour
         }
 
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
-
-
         ClampToCameraBounds();
-
     }
 
     public Vector2 Movement(KeyCode upKey, KeyCode leftKey, KeyCode downKey, KeyCode rightKey)
     {
         Vector2 targetVelocity = Vector2.zero;
-
 
         if (Input.GetKey(leftKey))
         {
@@ -83,6 +76,7 @@ public class Character : MonoBehaviour
         {
             transform.Rotate(0, 0, -moveSpeed * 50 * Time.deltaTime);
         }
+
         if (Input.GetKey(downKey))
         {
             targetVelocity = -transform.up * moveSpeed;
@@ -91,13 +85,11 @@ public class Character : MonoBehaviour
         else if (Input.GetKey(upKey))
         {
             GetAnimator.SetBool("IsRunning", true);
-
             targetVelocity = transform.up * moveSpeed;
         }
         else
         {
             GetAnimator.SetBool("IsRunning", false);
-
         }
 
         return targetVelocity;
@@ -109,9 +101,7 @@ public class Character : MonoBehaviour
         civ.SetActive(state == PlayerState.isCiv);
         GetCC2d.enabled = true;
 
-        Debug.Log("State updated: " + (state == PlayerState.isZombie ? "Zombie" : "Civilian"));
     }
-
 
     public Animator GetAnimator
     {
@@ -128,7 +118,6 @@ public class Character : MonoBehaviour
         }
     }
 
-
     public CapsuleCollider2D GetCC2d
     {
         get
@@ -143,65 +132,49 @@ public class Character : MonoBehaviour
             }
         }
     }
-    public float stateSwitchCooldown = 1.0f;
-    private float lastStateSwitchTime;
 
+    // Improved collision handling for state switching
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return; // Prevent switching too fast
+        if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return; // Cooldown check
 
         Character otherCharacter = other.gameObject.GetComponent<Character>();
 
-        if (otherCharacter != null)
+        if (otherCharacter.state  != this.state)
         {
-            if (this.state == PlayerState.isCiv && otherCharacter.state == PlayerState.isZombie)
+            if (this.playerNumber > otherCharacter.playerNumber)
             {
-                this.state = PlayerState.isZombie;
-                otherCharacter.state = PlayerState.isCiv;
+                PlayerState tempState = this.state;
+                this.state = otherCharacter.state;
+                otherCharacter.state = tempState;
 
-                Debug.Log("Civilian turned into Zombie!");
+                this.UpdateState();
+                otherCharacter.UpdateState();
+                Debug.Log($"Character {this.playerNumber} switched to {this.state}, Character {otherCharacter.playerNumber} switched to {otherCharacter.state}");
+
+
+                lastStateSwitchTime = Time.time; // Reset cooldown timer
             }
-            else if (this.state == PlayerState.isZombie && otherCharacter.state == PlayerState.isCiv)
-            {
-                otherCharacter.state = PlayerState.isZombie;
-                this.state = PlayerState.isCiv;
-
-                Debug.Log("Zombie infected a civilian!");
-
-
-            }
-
-
-
-            this.UpdateState();
-            otherCharacter.UpdateState();
-
-            lastStateSwitchTime = Time.time; // Record the time of the last state switch
         }
     }
 
 
 
-
     void ClampToCameraBounds()
     {
-        // Get the main camera's boundaries
         Camera cam = Camera.main;
         float cameraHeight = 2f * cam.orthographicSize;
         float cameraWidth = cameraHeight * cam.aspect;
 
-        // Calculate the boundaries
         float minX = cam.transform.position.x - cameraWidth / 2f;
         float maxX = cam.transform.position.x + cameraWidth / 2f;
         float minY = cam.transform.position.y - cameraHeight / 2f;
         float maxY = cam.transform.position.y + cameraHeight / 2f;
 
-        // Clamp the player's position
         Vector3 clampedPosition = transform.position;
         clampedPosition.x = Mathf.Clamp(clampedPosition.x, minX, maxX);
         clampedPosition.y = Mathf.Clamp(clampedPosition.y, minY, maxY);
 
-        // Apply the clamped position back to the player
         transform.position = clampedPosition;
     }
 
@@ -214,12 +187,8 @@ public class Character : MonoBehaviour
         else
         {
             timeRemaining = 0;
-            // Handle timer end logic (e.g., reset or change state)
-            Debug.Log($"Player {playerNumber} timer finished!");
-            // You can change the player state here if needed
-            // Example: state = PlayerState.isCiv; UpdateState(); 
+            Debug.Log($"Player {playerNumber}'s timer finished!");
+            // Additional logic can be added here, such as changing state
         }
     }
-
-
 }

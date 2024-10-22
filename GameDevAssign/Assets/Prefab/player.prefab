@@ -53,6 +53,7 @@ MonoBehaviour:
   zombie: {fileID: 5837395020802199797}
   civ: {fileID: 5661632276718452238}
   state: 1
+  timeRemaining: 60
   stateSwitchCooldown: 1
 --- !u!50 &7490352082566069438
 Rigidbody2D:
@@ -240,8 +241,8 @@ GameObject:
   - component: {fileID: 7807214039616189835}
   - component: {fileID: 5371511579347084375}
   - component: {fileID: 4849756696144320074}
-  - component: {fileID: 7157228638315387943}
-  - component: {fileID: 1959153075895653202}
+  - component: {fileID: 6355625090868625089}
+  - component: {fileID: 5189448843036767392}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -377,7 +378,7 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.954149, y: 1.54704}
   m_Direction: 0
---- !u!198 &7157228638315387943
+--- !u!198 &6355625090868625089
 ParticleSystem:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -386,7 +387,7 @@ ParticleSystem:
   m_GameObject: {fileID: 5837395020802199797}
   serializedVersion: 8
   lengthInSec: 5
-  simulationSpeed: 1
+  simulationSpeed: 0.66
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
@@ -450,7 +451,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 0
+  moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
   randomSeed: 0
@@ -460,7 +461,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 2.79
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -513,7 +514,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 3.71
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -567,7 +568,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      maxColor: {r: 0.46614805, g: 0.6462264, b: 0.435898, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -631,7 +632,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0.19
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -1009,10 +1010,10 @@ ParticleSystem:
     serializedVersion: 6
     enabled: 1
     type: 4
-    angle: 25
+    angle: 4.02
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
-    radiusThickness: 1
+    radiusThickness: 0.34
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
@@ -1095,7 +1096,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 1
+      value: 1.1
       mode: 0
       spread: 0
       speed:
@@ -1214,7 +1215,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 10
+      scalar: 5.53
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -1267,7 +1268,7 @@ ParticleSystem:
     rateOverDistance:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 5.8
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -5100,7 +5101,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!199 &1959153075895653202
+--- !u!199 &5189448843036767392
 ParticleSystemRenderer:
   serializedVersion: 6
   m_ObjectHideFlags: 0

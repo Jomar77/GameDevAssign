@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,7 +13,6 @@ public class GameManager : MonoBehaviour
     public int numberOfPlayers;
     private int zombieCount; // Keep track of the number of zombies
 
-
     void Start()
     {
         players = new GameObject[numberOfPlayers];
@@ -24,6 +22,7 @@ public class GameManager : MonoBehaviour
         float cameraWidth = cameraHeight * cam.aspect;
         mapBounds = new Vector2(cameraWidth, cameraHeight);
 
+        // Spawn all players
         for (int i = 0; i < numberOfPlayers; i++)
         {
             Vector2 spawnPoint = GenerateSpawnPoint();
@@ -33,15 +32,16 @@ public class GameManager : MonoBehaviour
             players[i].GetComponent<Character>().playerNumber = i + 1;
         }
 
+        // Initially assign one zombie
         AssignOneZombie();
     }
 
     void Update()
     {
-
+        // You can call UpdateZombieCount() periodically if needed
     }
 
-
+    // Assign one random player to be a zombie at the start of the game
     void AssignOneZombie()
     {
         int zombieIndex = Random.Range(0, numberOfPlayers);
@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
         zombieCount = 1;
     }
 
+    // Generate valid spawn points ensuring a safe distance between players
     Vector2 GenerateSpawnPoint()
     {
         Vector2 spawnPoint;
@@ -75,7 +76,7 @@ public class GameManager : MonoBehaviour
 
             isValid = true;
 
-            // Check distance from existing spawn points
+            // Ensure the spawn point is a safe distance from other players
             foreach (Vector2 existingPoint in spawnPoints)
             {
                 if (Vector2.Distance(spawnPoint, existingPoint) < safeDistance)
@@ -90,20 +91,23 @@ public class GameManager : MonoBehaviour
         return spawnPoint;
     }
 
-
+    // Update the zombie count after any state changes
     public void UpdateZombieCount()
     {
-        int zombieCount = 0;
+        int currentZombieCount = 0;
 
-        // Loop through all players and count the zombies
+        // Count zombies on the field
         foreach (GameObject player in players)
         {
             Character character = player.GetComponent<Character>();
             if (character.state == PlayerState.isZombie)
             {
-                zombieCount++;
+                currentZombieCount++;
             }
         }
+
+        // Update the global zombie count
+        zombieCount = currentZombieCount;
 
         // Ensure there's always at least one zombie
         if (zombieCount == 0)
@@ -116,9 +120,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-
-
-
-
+    // Method to notify the GameManager when a state switch occurs
+    public void NotifyStateChange()
+    {
+        UpdateZombieCount();
+    }
 }
