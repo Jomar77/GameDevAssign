@@ -20,7 +20,7 @@ public class Character : MonoBehaviour
     public float timeRemaining = 60f; // 1 minute timer
     private bool timerIsRunning = false;
 
-    public float stateSwitchCooldown = 1.0f;
+    public float stateSwitchCooldown = 3.0f;
     private float lastStateSwitchTime;
 
     Vector2 targetVelocity;
@@ -162,7 +162,7 @@ public class Character : MonoBehaviour
     // Improved collision handling for state switching
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return; // Cooldown check
+        if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return; 
 
         Character otherCharacter = other.gameObject.GetComponent<Character>();
 
@@ -178,21 +178,25 @@ public class Character : MonoBehaviour
                 otherCharacter.UpdateState();
                 Debug.Log($"Character {this.playerNumber} switched to {this.state}, Character {otherCharacter.playerNumber} switched to {otherCharacter.state}");
 
-                lastStateSwitchTime = Time.time; // Reset cooldown timer
+                lastStateSwitchTime = Time.time;
             }
         }
     }
-
     void ClampToCameraBounds()
     {
         Camera cam = Camera.main;
         float cameraHeight = 2f * cam.orthographicSize;
         float cameraWidth = cameraHeight * cam.aspect;
 
-        float minX = cam.transform.position.x - cameraWidth / 2f;
-        float maxX = cam.transform.position.x + cameraWidth / 2f;
-        float minY = cam.transform.position.y - cameraHeight / 2f;
-        float maxY = cam.transform.position.y + cameraHeight / 2f;
+        CapsuleCollider2D collider = GetCC2d;
+
+        float colliderHalfWidth = collider.bounds.extents.x;  
+        float colliderHalfHeight = collider.bounds.extents.y;  
+
+        float minX = cam.transform.position.x - cameraWidth / 2f + colliderHalfWidth;
+        float maxX = cam.transform.position.x + cameraWidth / 2f - colliderHalfWidth;
+        float minY = cam.transform.position.y - cameraHeight / 2f + colliderHalfHeight;
+        float maxY = cam.transform.position.y + cameraHeight / 2f - colliderHalfHeight;
 
         Vector3 clampedPosition = transform.position;
         clampedPosition.x = Mathf.Clamp(clampedPosition.x, minX, maxX);
@@ -200,6 +204,8 @@ public class Character : MonoBehaviour
 
         transform.position = clampedPosition;
     }
+
+
 
     void UpdateTimer()
     {
@@ -211,7 +217,8 @@ public class Character : MonoBehaviour
         {
             timeRemaining = 0;
             Debug.Log($"Player {playerNumber}'s timer finished!");
-            // Additional logic can be added here, such as changing state
+            // Additional logic can be added here, such as changing state added something 
         }
     }
+
 }

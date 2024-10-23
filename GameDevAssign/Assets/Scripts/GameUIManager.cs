@@ -1,11 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class GameUIManager : MonoBehaviour
 {
     public static GameUIManager Instance;
 
-    public Text[] playerInfoTexts;  // Text fields for each player (assign in Inspector)
+    public GameObject playerPanelPrefab;
+    public Transform panelParent;
+    private Text playerInfoNum;
+    private Text playerInfoTime;
+    private Dictionary<int, GameObject> playerPanels = new Dictionary<int, GameObject>();
 
     private void Awake()
     {
@@ -19,13 +24,31 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    // Method to update the player's UI
+    public void CreatePlayerPanel(int playerNumber, float initialTime)
+    {
+        GameObject newPanel = Instantiate(playerPanelPrefab, panelParent);
+
+        playerInfoNum = newPanel.transform.Find("PlayerNum").GetComponent<Text>();
+        playerInfoNum.text = "Player " + playerNumber;
+
+        playerInfoTime = newPanel.transform.Find("TimeLeft").GetComponent<Text>();
+        playerInfoTime.text = "Time Left: " + initialTime.ToString("F1");
+
+
+        playerPanels[playerNumber] = newPanel;
+    }
+
     public void UpdatePlayerInfo(int playerNumber, float remainingTime)
     {
-        if (playerNumber >= 1 && playerNumber <= playerInfoTexts.Length)
+        if (playerPanels.ContainsKey(playerNumber))
         {
-            // Update the relevant text field
-            playerInfoTexts[playerNumber - 1].text = "Player " + playerNumber + " | Time: " + Mathf.Max(0, remainingTime).ToString("F1");
+            playerInfoNum = playerPanels[playerNumber].transform.Find("PlayerNum").GetComponent<Text>();
+            playerInfoNum.text = "Player " + playerNumber;
+
+
+            playerInfoTime = playerPanels[playerNumber].transform.Find("TimeLeft").GetComponent<Text>();
+            playerInfoTime.text = "Time: " + Mathf.Max(0, remainingTime).ToString("F1");
         }
     }
 }
+
