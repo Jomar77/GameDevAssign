@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,11 +6,11 @@ public class GameManager : MonoBehaviour
     public GameObject playerPrefab;
     private List<Vector2> spawnPoints = new List<Vector2>();
     private GameObject[] players;
-    public Vector2 mapBounds;
+    private Vector2 mapBounds;
     public float safeDistance = 5f; // Minimum safe distance between players
 
     public int numberOfPlayers;
-    private int zombieCount; // Keep track of the number of zombies
+    private int zombieCount;
 
     void Start()
     {
@@ -29,16 +28,14 @@ public class GameManager : MonoBehaviour
             spawnPoints.Add(spawnPoint);
 
             players[i] = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
-            players[i].GetComponent<Character>().playerNumber = i + 1;
+            players[i].GetComponent<Character>().InitializeCharacter(i + 1, 60f);
+
+            // Update UI for each player
+            GameUIManager.Instance.UpdatePlayerInfo(i + 1, 60f);
         }
 
         // Initially assign one zombie
         AssignOneZombie();
-    }
-
-    void Update()
-    {
-        // You can call UpdateZombieCount() periodically if needed
     }
 
     // Assign one random player to be a zombie at the start of the game
@@ -48,14 +45,8 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < numberOfPlayers; i++)
         {
-            if (i == zombieIndex)
-            {
-                players[i].GetComponent<Character>().state = PlayerState.isZombie;
-            }
-            else
-            {
-                players[i].GetComponent<Character>().state = PlayerState.isCiv;
-            }
+            players[i].GetComponent<Character>().state = i == zombieIndex ? PlayerState.isZombie : PlayerState.isCiv;
+            players[i].GetComponent<Character>().UpdateState();
         }
 
         zombieCount = 1;
@@ -70,13 +61,12 @@ public class GameManager : MonoBehaviour
         do
         {
             spawnPoint = new Vector2(
-                Random.Range(-mapBounds.x / 2, mapBounds.x / 2), // X within map bounds
-                Random.Range(-mapBounds.y / 2, mapBounds.y / 2)  // Y within map bounds
+                Random.Range(-mapBounds.x / 2, mapBounds.x / 2),
+                Random.Range(-mapBounds.y / 2, mapBounds.y / 2)
             );
 
             isValid = true;
 
-            // Ensure the spawn point is a safe distance from other players
             foreach (Vector2 existingPoint in spawnPoints)
             {
                 if (Vector2.Distance(spawnPoint, existingPoint) < safeDistance)
@@ -96,33 +86,48 @@ public class GameManager : MonoBehaviour
     {
         int currentZombieCount = 0;
 
-        // Count zombies on the field
         foreach (GameObject player in players)
         {
-            Character character = player.GetComponent<Character>();
-            if (character.state == PlayerState.isZombie)
+            if (player.GetComponent<Character>().state == PlayerState.isZombie)
             {
                 currentZombieCount++;
             }
         }
 
-        // Update the global zombie count
         zombieCount = currentZombieCount;
 
-        // Ensure there's always at least one zombie
         if (zombieCount == 0)
         {
-            // Assign a random civilian as the new zombie
-            int newZombieIndex = Random.Range(0, numberOfPlayers);
-            players[newZombieIndex].GetComponent<Character>().state = PlayerState.isZombie;
-            players[newZombieIndex].GetComponent<Character>().UpdateState();
-            Debug.Log("New zombie assigned!");
+            List<int> civilianIndices = new List<int>();
+            for (int i = 0; i < numberOfPlayers; i++)
+            {
+                if (players[i].GetComponent<Character>().state == PlayerState.isCiv)
+                {
+                    civilianIndices.Add(i);
+                }
+            }
+
+            if (civilianIndices.Count > 0)
+            {
+                int newZombieIndex = civilianIndices[Random.Range(0, civilianIndices.Count)];
+                players[newZombieIndex].GetComponent<Character>().state = PlayerState.isZombie;
+                players[newZombieIndex].GetComponent<Character>().UpdateState();
+            }
         }
+
+        CheckForGameOver();
     }
 
-    // Method to notify the GameManager when a state switch occurs
     public void NotifyStateChange()
     {
         UpdateZombieCount();
+    }
+
+    void CheckForGameOver()
+    {
+        if (zombieCount == numberOfPlayers)
+        {
+            Debug.Log("Game Over! All players are zombies.");
+        }
     }
 }

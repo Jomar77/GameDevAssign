@@ -8,11 +8,10 @@ public enum PlayerState
 
 public class Character : MonoBehaviour
 {
-    public float moveSpeed = 1f;
     public float smoothTime = 0.1f;
     private Vector2 currentVelocity = Vector2.zero;
     private Rigidbody2D rb;
-    public int playerNumber;
+
     public GameObject zombie;
     public GameObject civ;
     public PlayerState state = PlayerState.isCiv;
@@ -25,6 +24,20 @@ public class Character : MonoBehaviour
     private float lastStateSwitchTime;
 
     Vector2 targetVelocity;
+
+    public int playerNumber { get; private set; }  // Player number
+    public float remainingTime { get; private set; }
+
+    // Initialization method to mimic constructor
+    public void InitializeCharacter(int playerNum, float initialTime)
+    {
+        playerNumber = playerNum;
+        remainingTime = initialTime;
+        timerIsRunning = state == PlayerState.isZombie;
+    }
+
+    public float moveSpeed;
+    private float turnSpeed;
 
     public void Start()
     {
@@ -40,6 +53,9 @@ public class Character : MonoBehaviour
         {
             UpdateTimer();
         }
+
+        GameUIManager.Instance.UpdatePlayerInfo(playerNumber, remainingTime);
+
     }
 
     void handleInput(int playerNum)
@@ -68,13 +84,24 @@ public class Character : MonoBehaviour
     {
         Vector2 targetVelocity = Vector2.zero;
 
+        if (this.state == PlayerState.isCiv)
+        {
+            moveSpeed = 1.5f;
+            turnSpeed = 240f;
+        }
+        else
+        {
+            moveSpeed = 2f;
+            turnSpeed = 50f;
+        }
+
         if (Input.GetKey(leftKey))
         {
-            transform.Rotate(0, 0, moveSpeed * 50 * Time.deltaTime);
+            transform.Rotate(0, 0, turnSpeed * Time.deltaTime);
         }
         else if (Input.GetKey(rightKey))
         {
-            transform.Rotate(0, 0, -moveSpeed * 50 * Time.deltaTime);
+            transform.Rotate(0, 0, -turnSpeed * Time.deltaTime);
         }
 
         if (Input.GetKey(downKey))
@@ -100,7 +127,6 @@ public class Character : MonoBehaviour
         zombie.SetActive(state == PlayerState.isZombie);
         civ.SetActive(state == PlayerState.isCiv);
         GetCC2d.enabled = true;
-
     }
 
     public Animator GetAnimator
@@ -140,7 +166,7 @@ public class Character : MonoBehaviour
 
         Character otherCharacter = other.gameObject.GetComponent<Character>();
 
-        if (otherCharacter.state  != this.state)
+        if (otherCharacter.state != this.state)
         {
             if (this.playerNumber > otherCharacter.playerNumber)
             {
@@ -152,13 +178,10 @@ public class Character : MonoBehaviour
                 otherCharacter.UpdateState();
                 Debug.Log($"Character {this.playerNumber} switched to {this.state}, Character {otherCharacter.playerNumber} switched to {otherCharacter.state}");
 
-
                 lastStateSwitchTime = Time.time; // Reset cooldown timer
             }
         }
     }
-
-
 
     void ClampToCameraBounds()
     {
