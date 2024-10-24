@@ -1,19 +1,40 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
     public GameObject playerPrefab;
-    private List<Vector2> spawnPoints = new List<Vector2>();
+    private List<Vector3> spawnPoints = new List<Vector3>();
     private GameObject[] players;
     private Vector2 mapBounds;
-    public float safeDistance = 5f; // Minimum safe distance between players
 
+    public float safeDistance = 5f;
+    Vector3 cameraPosition;
     public int numberOfPlayers;
-    private int zombieCount;
 
+    private Camera mainCamera;
+
+    public static GameManager Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        mainCamera = Camera.main;
+    }
     void Start()
     {
+        mainCamera = Camera.main;
+        cameraPosition = mainCamera.transform.position;
+
         players = new GameObject[numberOfPlayers];
 
         Camera cam = Camera.main;
@@ -21,24 +42,20 @@ public class GameManager : MonoBehaviour
         float cameraWidth = cameraHeight * cam.aspect;
         mapBounds = new Vector2(cameraWidth, cameraHeight);
 
-        // Spawn all players
         for (int i = 0; i < numberOfPlayers; i++)
         {
-            Vector2 spawnPoint = GenerateSpawnPoint();
+            Vector3 spawnPoint = GenerateSpawnPoint();
             spawnPoints.Add(spawnPoint);
 
             players[i] = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
             players[i].GetComponent<Character>().InitializeCharacter(i + 1, 60f);
 
-            // Update UI for each player
-            GameUIManager.Instance.UpdatePlayerInfo(i + 1, 60f);
+            GameUIManager.Instance.CreatePlayerPanel(players[i].GetComponent<Character>());
         }
 
-        // Initially assign one zombie
         AssignOneZombie();
     }
 
-    // Assign one random player to be a zombie at the start of the game
     void AssignOneZombie()
     {
         int zombieIndex = Random.Range(0, numberOfPlayers);
@@ -48,28 +65,26 @@ public class GameManager : MonoBehaviour
             players[i].GetComponent<Character>().state = i == zombieIndex ? PlayerState.isZombie : PlayerState.isCiv;
             players[i].GetComponent<Character>().UpdateState();
         }
-
-        zombieCount = 1;
     }
 
-    // Generate valid spawn points ensuring a safe distance between players
-    Vector2 GenerateSpawnPoint()
+    Vector3 GenerateSpawnPoint()
     {
-        Vector2 spawnPoint;
+        Vector3 spawnPoint;
         bool isValid;
 
         do
         {
-            spawnPoint = new Vector2(
+            spawnPoint = new Vector3(
                 Random.Range(-mapBounds.x / 2, mapBounds.x / 2),
-                Random.Range(-mapBounds.y / 2, mapBounds.y / 2)
+                Random.Range(-mapBounds.y / 2, mapBounds.y / 2),
+                cameraPosition.z + 1f
             );
 
             isValid = true;
 
-            foreach (Vector2 existingPoint in spawnPoints)
+            foreach (Vector3 existingPoint in spawnPoints)
             {
-                if (Vector2.Distance(spawnPoint, existingPoint) < safeDistance)
+                if (Vector3.Distance(spawnPoint, existingPoint) < safeDistance)
                 {
                     isValid = false;
                     break;
@@ -81,53 +96,36 @@ public class GameManager : MonoBehaviour
         return spawnPoint;
     }
 
-    // Update the zombie count after any state changes
-    public void UpdateZombieCount()
+    public void StartZoom(float targetSize, float duration, System.Action onZoomComplete = null)
     {
-        int currentZombieCount = 0;
-
-        foreach (GameObject player in players)
-        {
-            if (player.GetComponent<Character>().state == PlayerState.isZombie)
-            {
-                currentZombieCount++;
-            }
-        }
-
-        zombieCount = currentZombieCount;
-
-        if (zombieCount == 0)
-        {
-            List<int> civilianIndices = new List<int>();
-            for (int i = 0; i < numberOfPlayers; i++)
-            {
-                if (players[i].GetComponent<Character>().state == PlayerState.isCiv)
-                {
-                    civilianIndices.Add(i);
-                }
-            }
-
-            if (civilianIndices.Count > 0)
-            {
-                int newZombieIndex = civilianIndices[Random.Range(0, civilianIndices.Count)];
-                players[newZombieIndex].GetComponent<Character>().state = PlayerState.isZombie;
-                players[newZombieIndex].GetComponent<Character>().UpdateState();
-            }
-        }
-
-        CheckForGameOver();
+        StartCoroutine(SmoothZoom(targetSize, duration, onZoomComplete));
     }
 
-    public void NotifyStateChange()
+    private IEnumerator SmoothZoom(float targetSize, float duration, System.Action onZoomComplete = null)
     {
-        UpdateZombieCount();
+        float startSize = mainCamera.orthographicSize;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            mainCamera.orthographicSize = Mathf.Lerp(startSize, targetSize, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        mainCamera.orthographicSize = targetSize;
+
+        onZoomComplete?.Invoke();
     }
 
-    void CheckForGameOver()
+    public void ZoomOutAfterDelay(float zoomOutSize, float delay, float duration)
     {
-        if (zombieCount == numberOfPlayers)
-        {
-            Debug.Log("Game Over! All players are zombies.");
-        }
+        StartCoroutine(ZoomOutDelayCoroutine(zoomOutSize, delay, duration));
+    }
+
+    private IEnumerator ZoomOutDelayCoroutine(float zoomOutSize, float delay, float duration)
+    {
+        yield return new WaitForSeconds(delay);  // Wait for the specified delay
+        StartZoom(zoomOutSize, duration);        // Start zoom out effect
     }
 }

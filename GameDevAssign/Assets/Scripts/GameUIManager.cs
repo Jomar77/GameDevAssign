@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class GameUIManager : MonoBehaviour
 {
-    public static GameUIManager Instance;
 
     public GameObject playerPanelPrefab;
     public Transform panelParent;
@@ -12,30 +11,71 @@ public class GameUIManager : MonoBehaviour
     private Text playerInfoTime;
     private Dictionary<int, GameObject> playerPanels = new Dictionary<int, GameObject>();
 
-    private void Awake()
+    private static GameUIManager _instance;
+
+    public static GameUIManager Instance
     {
-        if (Instance == null)
+        get
         {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
+            if (_instance == null)
+            {
+                _instance = FindFirstObjectByType<GameUIManager>();
+
+                if (_instance == null)
+                {
+                    Debug.LogError("There is no GameUIManager instance in the scene.");
+                }
+            }
+            return _instance;
         }
     }
 
-    public void CreatePlayerPanel(int playerNumber, float initialTime)
+    private void Awake()
+    {
+        // Ensure there is only one instance of the GameUIManager
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject); // Destroy the extra instance if it exists
+        }
+        else
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject); // Optional: if you want it to persist across scenes
+        }
+    }
+
+
+    public void CreatePlayerPanel(Character player)
     {
         GameObject newPanel = Instantiate(playerPanelPrefab, panelParent);
 
+        if (player == null)
+        {
+            Debug.LogError("Player is null!");
+            return;
+        }
+
+
         playerInfoNum = newPanel.transform.Find("PlayerNum").GetComponent<Text>();
-        playerInfoNum.text = "Player " + playerNumber;
+
+        if (playerInfoNum == null)
+        {
+            Debug.LogError("PlayerNum Text component is missing!");
+            return;
+        }
+        playerInfoNum.text = "Player " + player.playerNumber;
 
         playerInfoTime = newPanel.transform.Find("TimeLeft").GetComponent<Text>();
-        playerInfoTime.text = "Time Left: " + initialTime.ToString("F1");
+
+        if (playerInfoTime == null)
+        {
+            Debug.LogError("TimeLeft Text component is missing!");
+            return;
+        }
+        playerInfoTime.text = "Time Left: " + player.remainingTime.ToString("F1");
 
 
-        playerPanels[playerNumber] = newPanel;
+        playerPanels[player.playerNumber] = newPanel;
     }
 
     public void UpdatePlayerInfo(int playerNumber, float remainingTime)

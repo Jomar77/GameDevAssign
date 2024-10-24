@@ -86,7 +86,7 @@ public class SelectManager : MonoBehaviour
 
             SceneManager.LoadScene("TitleScreen");
         }
-        else if( !mapSelect.activeSelf && playerSelect.activeSelf)
+        else if (!mapSelect.activeSelf && playerSelect.activeSelf)
         {
             playerSelect.SetActive(false);
             mapSelect.SetActive(true);

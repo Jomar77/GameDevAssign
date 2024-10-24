@@ -20,7 +20,7 @@ public class Character : MonoBehaviour
     public float timeRemaining = 60f; // 1 minute timer
     private bool timerIsRunning = false;
 
-    public float stateSwitchCooldown = 3.0f;
+    public float stateSwitchCooldown = 5.0f;
     private float lastStateSwitchTime;
 
     Vector2 targetVelocity;
@@ -126,9 +126,21 @@ public class Character : MonoBehaviour
     {
         zombie.SetActive(state == PlayerState.isZombie);
         civ.SetActive(state == PlayerState.isCiv);
+
         GetCC2d.enabled = true;
+
+        if (state == PlayerState.isZombie && !timerIsRunning)
+        {
+            timerIsRunning = true;
+        }
+        else if (state == PlayerState.isCiv && timerIsRunning)
+        {
+            timerIsRunning = false;
+            Debug.Log($"Player {playerNumber} is a civilian. Timer paused at {Mathf.CeilToInt(timeRemaining)} seconds.");
+        }
     }
 
+    // GET SET GO
     public Animator GetAnimator
     {
         get
@@ -159,10 +171,10 @@ public class Character : MonoBehaviour
         }
     }
 
-    // Improved collision handling for state switching
+    //COLLISION THING
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return; 
+        if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return;
 
         Character otherCharacter = other.gameObject.GetComponent<Character>();
 
@@ -179,9 +191,19 @@ public class Character : MonoBehaviour
                 Debug.Log($"Character {this.playerNumber} switched to {this.state}, Character {otherCharacter.playerNumber} switched to {otherCharacter.state}");
 
                 lastStateSwitchTime = Time.time;
+
+                GameManager.Instance.StartZoom(3f, 0.1f, () =>
+                {
+                    // After zoom-in is complete, wait 3 seconds and zoom back out
+                    GameManager.Instance.ZoomOutAfterDelay(5f, 2f, 0.1f);  // Adjust zoom-out size and duration
+                });
             }
         }
     }
+
+
+
+    //CAMERA STUFF
     void ClampToCameraBounds()
     {
         Camera cam = Camera.main;
@@ -190,8 +212,8 @@ public class Character : MonoBehaviour
 
         CapsuleCollider2D collider = GetCC2d;
 
-        float colliderHalfWidth = collider.bounds.extents.x;  
-        float colliderHalfHeight = collider.bounds.extents.y;  
+        float colliderHalfWidth = collider.bounds.extents.x;
+        float colliderHalfHeight = collider.bounds.extents.y;
 
         float minX = cam.transform.position.x - cameraWidth / 2f + colliderHalfWidth;
         float maxX = cam.transform.position.x + cameraWidth / 2f - colliderHalfWidth;
@@ -206,17 +228,21 @@ public class Character : MonoBehaviour
     }
 
 
+    //TIMER STUFF
 
     void UpdateTimer()
     {
         if (timeRemaining > 0)
         {
             timeRemaining -= Time.deltaTime;
+            Debug.Log($"Player {playerNumber}: {timeRemaining}");
+
         }
         else
         {
             timeRemaining = 0;
-            Debug.Log($"Player {playerNumber}'s timer finished!");
+            timerIsRunning = false;  // Timer stops when time reaches 0
+            Debug.Log($"Player {playerNumber} has been zombified!");
             // Additional logic can be added here, such as changing state added something 
         }
     }
