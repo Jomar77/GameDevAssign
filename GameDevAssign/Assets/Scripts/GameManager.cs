@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
+        numberOfPlayers = GameData.PlayerCount;
         mainCamera = Camera.main;
         cameraPosition = mainCamera.transform.position;
 

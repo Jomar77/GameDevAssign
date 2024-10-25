@@ -83,16 +83,16 @@ public class Character : MonoBehaviour
     public Vector2 Movement(KeyCode upKey, KeyCode leftKey, KeyCode downKey, KeyCode rightKey)
     {
         Vector2 targetVelocity = Vector2.zero;
-
+        //CODE FOR ROTATION AND SPEED
         if (this.state == PlayerState.isCiv)
         {
-            moveSpeed = 1.5f;
+            moveSpeed = 1.6f;
             turnSpeed = 240f;
         }
         else
         {
-            moveSpeed = 2f;
-            turnSpeed = 50f;
+            moveSpeed = 2.3f;
+            turnSpeed = 75f;
         }
 
         if (Input.GetKey(leftKey))
