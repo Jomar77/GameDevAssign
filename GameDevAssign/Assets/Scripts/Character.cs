@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public enum PlayerState
 {
@@ -8,6 +9,8 @@ public enum PlayerState
 
 public class Character : MonoBehaviour
 {
+    public bool isClampingEnabled = true;
+
     public float smoothTime = 0.1f;
     private Vector2 currentVelocity = Vector2.zero;
     private Rigidbody2D rb;
@@ -198,7 +201,30 @@ public class Character : MonoBehaviour
                     GameManager.Instance.ZoomOutAfterDelay(5f, 2f, 0.1f);  // Adjust zoom-out size and duration
                 });
             }
+
+            Vector3 collisionPoint = (this.transform.position + otherCharacter.transform.position) / 2;
+            GameManager.Instance.StartCollisionZoom(collisionPoint, 3f, 0.1f, 2f, () =>
+            {
+                // After zoom-in completes, wait 2 seconds, then zoom out
+                GameManager.Instance.ZoomOutAfterDelay(5f, 2f, 0.1f);
+            });
+
+            GameManager.Instance.EnableVignette(.6f);
+
+            // Activate slow-motion
+            Time.timeScale = 0.5f;  // Slow down
+
+            // Return to normal speed, disable vignette, and reset zoom
+            StartCoroutine(ResetEffectsAfterDelay(2f));
         }
+    }
+
+
+    private IEnumerator ResetEffectsAfterDelay(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        Time.timeScale = 1f;  // Normal speed
+        GameManager.Instance.DisableVignette();
     }
 
 
@@ -206,6 +232,7 @@ public class Character : MonoBehaviour
     //CAMERA STUFF
     void ClampToCameraBounds()
     {
+        if (!isClampingEnabled) return;
         Camera cam = Camera.main;
         float cameraHeight = 2f * cam.orthographicSize;
         float cameraWidth = cameraHeight * cam.aspect;

@@ -1,13 +1,21 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class GameManager : MonoBehaviour
 {
+    public Volume volume;
+    private Vignette vignette;
     public GameObject playerPrefab;
     private List<Vector3> spawnPoints = new List<Vector3>();
     private GameObject[] players;
     private Vector2 mapBounds;
+
+    private Vector3 initialCameraPosition;
+    private float initialCameraSize;
+
 
     public float safeDistance = 5f;
     Vector3 cameraPosition;
@@ -28,11 +36,21 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        if (volume.profile.TryGet(out vignette))
+        {
+            vignette.intensity.Override(0);
+        }
+
         mainCamera = Camera.main;
     }
     void Start()
     {
-        numberOfPlayers = GameData.PlayerCount;
+
+        mainCamera = Camera.main;
+        initialCameraPosition = mainCamera.transform.position;
+        initialCameraSize = mainCamera.orthographicSize;
+        //numberOfPlayers = GameData.PlayerCount;
+
         mainCamera = Camera.main;
         cameraPosition = mainCamera.transform.position;
 
@@ -57,6 +75,23 @@ public class GameManager : MonoBehaviour
         AssignOneZombie();
     }
 
+    public void EnableVignette(float intensity)
+    {
+        if (vignette != null)
+        {
+            vignette.intensity.value = intensity;
+        }
+    }
+    public void DisableVignette()
+    {
+        if (vignette != null)
+        {
+            vignette.intensity.value = 0;
+        }
+    }
+
+
+
     void AssignOneZombie()
     {
         int zombieIndex = Random.Range(0, numberOfPlayers);
@@ -78,7 +113,7 @@ public class GameManager : MonoBehaviour
             spawnPoint = new Vector3(
                 Random.Range(-mapBounds.x / 2, mapBounds.x / 2),
                 Random.Range(-mapBounds.y / 2, mapBounds.y / 2),
-                cameraPosition.z + 1f
+                -8f
             );
 
             isValid = true;
@@ -129,4 +164,64 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(delay);  // Wait for the specified delay
         StartZoom(zoomOutSize, duration);        // Start zoom out effect
     }
+
+    public void StartCollisionZoom(Vector3 collisionPoint, float targetSize, float duration,float delay, System.Action onComplete)
+    {
+        foreach (var player in players)
+        {
+            player.GetComponent<Character>().isClampingEnabled = false;
+        }
+
+        StartCoroutine(CollisionZoomCoroutine(collisionPoint, targetSize, duration, delay,() =>
+        {
+            // Re-enable clamping after zoom completes
+            foreach (var player in players)
+            {
+                player.GetComponent<Character>().isClampingEnabled = true;
+            }
+
+            // Reset camera position and size
+            mainCamera.transform.position = initialCameraPosition;
+            mainCamera.orthographicSize = initialCameraSize;
+        }));
+    }
+
+    private IEnumerator CollisionZoomCoroutine(Vector3 targetPosition, float targetSize, float duration, float delay, System.Action onComplete)
+    {
+        Vector3 startPosition = mainCamera.transform.position;
+        float startSize = mainCamera.orthographicSize;
+        float time = 0f;
+
+        // Move and zoom in
+        while (time < duration)
+        {
+            mainCamera.transform.position = Vector3.Lerp(startPosition, targetPosition, time / duration);
+            mainCamera.orthographicSize = Mathf.Lerp(startSize, targetSize, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        mainCamera.transform.position = targetPosition;
+        mainCamera.orthographicSize = targetSize;
+
+        // Wait for the delay
+        yield return new WaitForSeconds(delay);
+
+        // Reset the camera back to its initial position and size
+        time = 0f;
+        while (time < duration)
+        {
+            mainCamera.transform.position = Vector3.Lerp(targetPosition, initialCameraPosition, time / duration);
+            mainCamera.orthographicSize = Mathf.Lerp(targetSize, initialCameraSize, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        mainCamera.transform.position = initialCameraPosition;
+        mainCamera.orthographicSize = initialCameraSize;
+
+        onComplete?.Invoke();
+    }
+
+
 }

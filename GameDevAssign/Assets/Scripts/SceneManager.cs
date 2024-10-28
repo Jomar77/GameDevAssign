@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class SelectManager : MonoBehaviour
 {
-    public GameObject playerSelect; // Assign your player select UI here
-    public GameObject mapSelect;    // Assign your map select UI here
-                                    // Assign your map 2 button here
-    private int activePlayers = 0;
-    private Button numOfPlayers;
+    public GameObject playerSelect; 
+    public GameObject mapSelect;    
+                                 
+    //private int activePlayers = 0;
+    //private Button numOfPlayers;
 
     void Start()
     {
@@ -37,16 +37,13 @@ public class SelectManager : MonoBehaviour
 
         if (option == 1)
         {
-            // Logic for option 1
-            GameData.PlayerCount = 3;  // Example: set player count for option 1
+            GameData.PlayerCount = 3;
         }
         else if (option == 2)
         {
-            // Logic for option 2
-            GameData.PlayerCount = 4;  // Example: set player count for option 2
+            GameData.PlayerCount = 4;  
         }
 
-        // Start the game (load the next scene)
         SceneManager.LoadScene("jom_Scene");
     }
 }

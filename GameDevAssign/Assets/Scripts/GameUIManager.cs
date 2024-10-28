@@ -76,6 +76,9 @@ public class GameUIManager : MonoBehaviour
 
 
         playerPanels[player.playerNumber] = newPanel;
+
+        AdjustPanelScale(newPanel);
+
     }
 
     public void UpdatePlayerInfo(int playerNumber, float remainingTime)
@@ -88,6 +91,40 @@ public class GameUIManager : MonoBehaviour
 
             playerInfoTime = playerPanels[playerNumber].transform.Find("TimeLeft").GetComponent<Text>();
             playerInfoTime.text = "Time: " + Mathf.Max(0, remainingTime).ToString("F1");
+
+            AdjustPanelScale(playerPanels[playerNumber]);
+        }
+    }
+
+
+    private void AdjustPanelScale(GameObject panel)
+    {
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        float parentWidth = panelParent.GetComponent<RectTransform>().rect.width;
+
+        // Calculate the total width of the player panel including its padding
+        float totalWidth = 0f;
+
+        foreach (RectTransform child in panelRect)
+        {
+            totalWidth += child.rect.width + ((HorizontalLayoutGroup)panelParent.GetComponent<LayoutGroup>()).spacing;
+        }
+
+        // Calculate the scale factor to fit the parent width
+        float scaleFactor = 1f;
+
+        if (totalWidth > parentWidth)
+        {
+            scaleFactor = parentWidth / totalWidth;
+        }
+
+        // Apply the scale to the panel and its children
+        panel.transform.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
+
+        // Optionally, you can also scale the individual child elements if needed
+        foreach (RectTransform child in panelRect)
+        {
+            child.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
         }
     }
 }
