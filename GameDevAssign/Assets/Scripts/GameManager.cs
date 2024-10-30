@@ -73,6 +73,7 @@ public class GameManager : MonoBehaviour
         }
 
         AssignOneZombie();
+    
     }
 
     public void EnableVignette(float intensity)
