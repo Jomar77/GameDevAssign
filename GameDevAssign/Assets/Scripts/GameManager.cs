@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
         mainCamera = Camera.main;
         initialCameraPosition = mainCamera.transform.position;
         initialCameraSize = mainCamera.orthographicSize;
-        //numberOfPlayers = GameData.PlayerCount;
+        numberOfPlayers = GameData.PlayerCount;
 
         mainCamera = Camera.main;
         cameraPosition = mainCamera.transform.position;
@@ -113,7 +113,7 @@ public class GameManager : MonoBehaviour
             spawnPoint = new Vector3(
                 Random.Range(-mapBounds.x / 2, mapBounds.x / 2),
                 Random.Range(-mapBounds.y / 2, mapBounds.y / 2),
-                -8f
+                -7f
             );
 
             isValid = true;

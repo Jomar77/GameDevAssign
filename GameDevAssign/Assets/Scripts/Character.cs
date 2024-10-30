@@ -57,7 +57,7 @@ public class Character : MonoBehaviour
             UpdateTimer();
         }
 
-        GameUIManager.Instance.UpdatePlayerInfo(playerNumber, remainingTime);
+        GameUIManager.Instance.UpdatePlayerInfo(playerNumber, timeRemaining);
 
     }
 
@@ -195,10 +195,10 @@ public class Character : MonoBehaviour
 
                 lastStateSwitchTime = Time.time;
 
-                GameManager.Instance.StartZoom(3f, 0.1f, () =>
+                GameManager.Instance.StartZoom(4f, 0.1f, () =>
                 {
                     // After zoom-in is complete, wait 3 seconds and zoom back out
-                    GameManager.Instance.ZoomOutAfterDelay(5f, 2f, 0.1f);  // Adjust zoom-out size and duration
+                    GameManager.Instance.ZoomOutAfterDelay(4f, 2f, 0.1f);  // Adjust zoom-out size and duration
                 });
             }
 
@@ -206,10 +206,10 @@ public class Character : MonoBehaviour
             GameManager.Instance.StartCollisionZoom(collisionPoint, 3f, 0.1f, 2f, () =>
             {
                 // After zoom-in completes, wait 2 seconds, then zoom out
-                GameManager.Instance.ZoomOutAfterDelay(5f, 2f, 0.1f);
+                GameManager.Instance.ZoomOutAfterDelay(3f, 2f, 0.1f);
             });
 
-            GameManager.Instance.EnableVignette(.6f);
+            //GameManager.Instance.EnableVignette(.6f);
 
             // Activate slow-motion
             Time.timeScale = 0.5f;  // Slow down

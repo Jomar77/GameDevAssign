@@ -1,14 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using TMPro;
 
 public class GameUIManager : MonoBehaviour
 {
 
     public GameObject playerPanelPrefab;
     public Transform panelParent;
-    private Text playerInfoNum;
-    private Text playerInfoTime;
+    private TMP_Text playerInfoNum;
+    private TMP_Text playerInfoTime;
     private Dictionary<int, GameObject> playerPanels = new Dictionary<int, GameObject>();
 
     private static GameUIManager _instance;
@@ -56,7 +57,7 @@ public class GameUIManager : MonoBehaviour
         }
 
 
-        playerInfoNum = newPanel.transform.Find("PlayerNum").GetComponent<Text>();
+        playerInfoNum = newPanel.transform.Find("PlayerNum").GetComponent<TMP_Text>();
 
         if (playerInfoNum == null)
         {
@@ -65,7 +66,7 @@ public class GameUIManager : MonoBehaviour
         }
         playerInfoNum.text = "Player " + player.playerNumber;
 
-        playerInfoTime = newPanel.transform.Find("TimeLeft").GetComponent<Text>();
+        playerInfoTime = newPanel.transform.Find("TimeLeft").GetComponent<TMP_Text>();
 
         if (playerInfoTime == null)
         {
@@ -85,11 +86,11 @@ public class GameUIManager : MonoBehaviour
     {
         if (playerPanels.ContainsKey(playerNumber))
         {
-            playerInfoNum = playerPanels[playerNumber].transform.Find("PlayerNum").GetComponent<Text>();
+            playerInfoNum = playerPanels[playerNumber].transform.Find("PlayerNum").GetComponent<TMP_Text>();
             playerInfoNum.text = "Player " + playerNumber;
 
 
-            playerInfoTime = playerPanels[playerNumber].transform.Find("TimeLeft").GetComponent<Text>();
+            playerInfoTime = playerPanels[playerNumber].transform.Find("TimeLeft").GetComponent<TMP_Text>();
             playerInfoTime.text = "Time: " + Mathf.Max(0, remainingTime).ToString("F1");
 
             AdjustPanelScale(playerPanels[playerNumber]);
