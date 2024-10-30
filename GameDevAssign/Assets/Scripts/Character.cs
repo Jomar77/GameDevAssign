@@ -178,8 +178,15 @@ public class Character : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         if (Time.time - lastStateSwitchTime < stateSwitchCooldown) return;
+        Character otherCharacter;
+        if (other.gameObject.GetComponent<Character>())
+        {
 
-        Character otherCharacter = other.gameObject.GetComponent<Character>();
+            otherCharacter = other.gameObject.GetComponent<Character>();
+        }
+        else{
+            return;
+        }
 
         if (otherCharacter.state != this.state)
         {
