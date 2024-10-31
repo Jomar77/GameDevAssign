@@ -106,10 +106,10 @@ TextureImporter:
       name: New Piskel (8)_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 61
-        width: 33
-        height: 34
+        x: 9
+        y: 62
+        width: 31
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -127,10 +127,10 @@ TextureImporter:
       name: New Piskel (8)_1
       rect:
         serializedVersion: 2
-        x: 8
-        y: 11
-        width: 33
-        height: 34
+        x: 9
+        y: 12
+        width: 31
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,14 +147,16 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: df5237dffabf0d44cbf7a5aa97bcc58e
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      New Piskel (8)_0: 3275028520990625885
+      New Piskel (8)_1: 3150403194116108143
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
