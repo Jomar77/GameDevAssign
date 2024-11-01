@@ -1,14 +1,19 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
 public class SelectManager : MonoBehaviour
 {
-    public GameObject playerSelect; 
-    public GameObject mapSelect;    
-                                 
-    //private int activePlayers = 0;
+    public GameObject playerSelect;
+    public GameObject mapSelect;
+    public Image Panel;
+    public Sprite anteMap;             // First sprite option
+    public Sprite jomMap;
+    public GameObject p4;
+
+    //private int activePlayers = p4;
     //private Button numOfPlayers;
 
     void Start()
@@ -41,9 +46,44 @@ public class SelectManager : MonoBehaviour
         }
         else if (option == 2)
         {
-            GameData.PlayerCount = 4;  
+            GameData.PlayerCount = 4;
         }
 
-        SceneManager.LoadScene("jom_Scene");
+        if(Panel.sprite == anteMap)
+        {
+            SceneManager.LoadScene("gab_SampleScene");
+        }
+        else
+        {
+            SceneManager.LoadScene("jom_Scene");
+        }
     }
+
+    public void bgmap2()
+    {
+        Panel.sprite = anteMap;
+    }
+
+    public void bgmap1()
+    {
+        Panel.sprite = jomMap;
+    }
+
+    public void HidePrefab()
+    {
+        if (p4 != null)
+        {
+            p4.SetActive(false);
+        }
+    }
+
+    // Method to show the prefab
+    public void ShowPrefab()
+    {
+        if (p4 != null)
+        {
+            p4.SetActive(true);
+        }
+    }
+
 }
