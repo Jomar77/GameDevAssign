@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Audio;
 
 public enum PlayerState
 {
@@ -25,6 +26,8 @@ public class Character : MonoBehaviour
 
     public float stateSwitchCooldown = 5.0f;
     private float lastStateSwitchTime;
+    public AudioClip[] collisionSounds;  // Array to hold collision sound effects
+    private AudioSource audioSource;
 
     Vector2 targetVelocity;
 
@@ -45,6 +48,7 @@ public class Character : MonoBehaviour
     public void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     public void Update()
@@ -192,6 +196,8 @@ public class Character : MonoBehaviour
         {
             if (this.playerNumber > otherCharacter.playerNumber)
             {
+                Debug.Log("Collision detected, playing sound.");
+                PlayRandomCollisionSound();
                 PlayerState tempState = this.state;
                 this.state = otherCharacter.state;
                 otherCharacter.state = tempState;
@@ -259,6 +265,20 @@ public class Character : MonoBehaviour
         clampedPosition.y = Mathf.Clamp(clampedPosition.y, minY, maxY);
 
         transform.position = clampedPosition;
+    }
+
+    public void PlayRandomCollisionSound()
+    {
+        if (collisionSounds.Length > 0)
+        {
+            int randomIndex = Random.Range(0, collisionSounds.Length);
+            AudioClip randomClip = collisionSounds[randomIndex];
+            audioSource.PlayOneShot(randomClip);
+        }
+        else
+        {
+            Debug.LogWarning("No collision sounds assigned in the array.");
+        }
     }
 
 

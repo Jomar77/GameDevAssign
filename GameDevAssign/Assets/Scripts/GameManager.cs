@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     private Vector3 initialCameraPosition;
     private float initialCameraSize;
 
+    public List<GameObject> obstaclePrefabs;
 
     public float safeDistance = 5f;
     Vector3 cameraPosition;
@@ -73,7 +74,20 @@ public class GameManager : MonoBehaviour
         }
 
         AssignOneZombie();
-    
+        SpawnObstacles(20);
+
+    }
+
+    // New method to spawn obstacles randomly
+    public void SpawnObstacles(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            // Randomly select an obstacle prefab from the list
+            GameObject prefabToSpawn = obstaclePrefabs[Random.Range(0, obstaclePrefabs.Count)];
+            Vector3 spawnPoint = GenerateSpawnPoint(); // Generate a random spawn point
+            Instantiate(prefabToSpawn, spawnPoint, Quaternion.identity); // Instantiate the prefab at the spawn point
+        }
     }
 
     public void EnableVignette(float intensity)
