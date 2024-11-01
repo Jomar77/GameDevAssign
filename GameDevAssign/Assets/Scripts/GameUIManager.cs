@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameUIManager : MonoBehaviour
 {
@@ -127,6 +128,11 @@ public class GameUIManager : MonoBehaviour
         {
             child.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
         }
+    }
+
+    public void returnMainScene()
+    {
+        SceneManager.LoadScene("Main Screen");
     }
 }
 

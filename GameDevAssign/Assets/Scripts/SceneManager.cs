@@ -28,7 +28,7 @@ public class SelectManager : MonoBehaviour
         if (mapSelect.activeSelf)
         {
 
-            SceneManager.LoadScene("TitleScreen");
+            SceneManager.LoadScene("Main Screen");
         }
         else if (!mapSelect.activeSelf && playerSelect.activeSelf)
         {
