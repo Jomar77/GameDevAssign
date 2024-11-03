@@ -9,6 +9,7 @@ public class GameUIManager : MonoBehaviour
 
     public GameObject playerPanelPrefab;
     public Transform panelParent;
+    public GameObject gameOverScreen;
     private TMP_Text playerInfoNum;
     private TMP_Text playerInfoTime;
     private Dictionary<int, GameObject> playerPanels = new Dictionary<int, GameObject>();
@@ -46,6 +47,10 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
+    public void ShowGameOverScreen()
+    {
+        gameOverScreen.SetActive(true);
+    }
 
     public void CreatePlayerPanel(Character player)
     {
@@ -127,6 +132,21 @@ public class GameUIManager : MonoBehaviour
         foreach (RectTransform child in panelRect)
         {
             child.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
+        }
+    }
+
+
+    private void SortLeaderboard()
+    {
+        // Sort panels by remainingTime in ascending order
+        var sortedPanels = playerPanels
+            .OrderBy(panel => Mathf.Max(0, panel.Value.transform.Find("TimeLeft").GetComponent<TMP_Text>().text))
+            .ToList();
+
+        // Rearrange child objects in the panelParent according to the sorted order
+        for (int i = 0; i < sortedPanels.Count; i++)
+        {
+            sortedPanels[i].Value.transform.SetSiblingIndex(i);
         }
     }
 

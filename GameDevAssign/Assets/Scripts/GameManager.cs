@@ -7,8 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public Volume volume;
-    private Vignette vignette;
+    //public Volume volume;
+    //private Vignette vignette;
     public GameObject playerPrefab;
     private List<Vector3> spawnPoints = new List<Vector3>();
     private GameObject[] players;
@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     public List<GameObject> obstaclePrefabs;
 
-    public float safeDistance = 5f;
+    public float safeDistance = 30f;
     Vector3 cameraPosition;
     public int numberOfPlayers;
 
@@ -38,10 +38,6 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        if (volume.profile.TryGet(out vignette))
-        {
-            vignette.intensity.Override(0);
-        }
 
         mainCamera = Camera.main;
     }
@@ -51,7 +47,7 @@ public class GameManager : MonoBehaviour
         mainCamera = Camera.main;
         initialCameraPosition = mainCamera.transform.position;
         initialCameraSize = mainCamera.orthographicSize;
-        numberOfPlayers = GameData.PlayerCount;
+        //numberOfPlayers = GameData.PlayerCount;
 
         mainCamera = Camera.main;
         cameraPosition = mainCamera.transform.position;
@@ -91,20 +87,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void EnableVignette(float intensity)
-    {
-        if (vignette != null)
-        {
-            vignette.intensity.value = intensity;
-        }
-    }
-    public void DisableVignette()
-    {
-        if (vignette != null)
-        {
-            vignette.intensity.value = 0;
-        }
-    }
+    //public void EnableVignette(float intensity)
+    //{
+    //    if (vignette != null)
+    //    {
+    //        vignette.intensity.value = intensity;
+    //    }
+    //}
+    //public void DisableVignette()
+    //{
+    //    if (vignette != null)
+    //    {
+    //        vignette.intensity.value = 0;
+    //    }
+    //}
 
 
 
@@ -129,7 +125,7 @@ public class GameManager : MonoBehaviour
             spawnPoint = new Vector3(
                 Random.Range(-mapBounds.x / 2, mapBounds.x / 2),
                 Random.Range(-mapBounds.y / 2, mapBounds.y / 2),
-                -7f
+                -10f
             );
 
             isValid = true;
@@ -239,7 +235,16 @@ public class GameManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
- 
+    public void CheckGameOver()
+    {
+        // Pause the game
+        Time.timeScale = 0;
+
+        // Show Game Over UI (this requires a UI element to be set up in the scene)
+        GameUIManager.Instance.ShowGameOverScreen();
+    }
+
+
 
 
 }

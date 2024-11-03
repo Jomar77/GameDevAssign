@@ -237,7 +237,7 @@ public class Character : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(delay);
         Time.timeScale = 1f;  // Normal speed
-        GameManager.Instance.DisableVignette();
+        //GameManager.Instance.DisableVignette();
     }
 
 
@@ -298,6 +298,8 @@ public class Character : MonoBehaviour
             timerIsRunning = false;  // Timer stops when time reaches 0
             Debug.Log($"Player {playerNumber} has been zombified!");
             // Additional logic can be added here, such as changing state added something 
+
+            GameManager.Instance.CheckGameOver();
         }
     }
 
