@@ -109,7 +109,6 @@ public class GameUIManager : MonoBehaviour
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         float parentWidth = panelParent.GetComponent<RectTransform>().rect.width;
 
-        // Calculate the total width of the player panel including its padding
         float totalWidth = 0f;
 
         foreach (RectTransform child in panelRect)
@@ -117,7 +116,6 @@ public class GameUIManager : MonoBehaviour
             totalWidth += child.rect.width + ((HorizontalLayoutGroup)panelParent.GetComponent<LayoutGroup>()).spacing;
         }
 
-        // Calculate the scale factor to fit the parent width
         float scaleFactor = 1f;
 
         if (totalWidth > parentWidth)
@@ -125,10 +123,8 @@ public class GameUIManager : MonoBehaviour
             scaleFactor = parentWidth / totalWidth;
         }
 
-        // Apply the scale to the panel and its children
         panel.transform.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
 
-        // Optionally, you can also scale the individual child elements if needed
         foreach (RectTransform child in panelRect)
         {
             child.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
@@ -138,12 +134,8 @@ public class GameUIManager : MonoBehaviour
 
     private void SortLeaderboard()
     {
-        // Sort panels by remainingTime in ascending order
-        var sortedPanels = playerPanels
-            .OrderBy(panel => Mathf.Max(0, panel.Value.transform.Find("TimeLeft").GetComponent<TMP_Text>().text))
-            .ToList();
+        var sortedPanels = playerPanels.OrderBy(panel => Mathf.Max(0, panel.Value.transform.Find("TimeLeft").GetComponent<TMP_Text>().text)).ToList();
 
-        // Rearrange child objects in the panelParent according to the sorted order
         for (int i = 0; i < sortedPanels.Count; i++)
         {
             sortedPanels[i].Value.transform.SetSiblingIndex(i);
