@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class GameUIManager : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class GameUIManager : MonoBehaviour
     public GameObject gameOverScreen;
     private TMP_Text playerInfoNum;
     private TMP_Text playerInfoTime;
+
+    public GameObject leaderboardItemPrefab;
+    public Transform leaderboardPanel;
     private Dictionary<int, GameObject> playerPanels = new Dictionary<int, GameObject>();
 
     private static GameUIManager _instance;
@@ -50,6 +54,7 @@ public class GameUIManager : MonoBehaviour
     public void ShowGameOverScreen()
     {
         gameOverScreen.SetActive(true);
+        SortLeaderboard();
     }
 
     public void CreatePlayerPanel(Character player)
@@ -131,11 +136,34 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
+    public void AddLeaderboardEntry(int playerNumber, float finalTime)
+    {
+        GameObject leaderboardEntry = Instantiate(leaderboardItemPrefab, leaderboardPanel);
+    TMP_Text playerNumberText = leaderboardEntry.transform.Find("PlayerNum").GetComponent<TMP_Text>();
+    TMP_Text playerTimeText = leaderboardEntry.transform.Find("FinalTime").GetComponent<TMP_Text>();
+
+    playerNumberText.text = "Player " + playerNumber;
+    playerTimeText.text = "Time: " + finalTime.ToString("F1");
+        
+    }
+
 
     private void SortLeaderboard()
     {
-        var sortedPanels = playerPanels.OrderBy(panel => Mathf.Max(0, panel.Value.transform.Find("TimeLeft").GetComponent<TMP_Text>().text)).ToList();
-
+        var sortedPanels = playerPanels.OrderByDescending(panel =>
+        {
+            TMP_Text timeText = panel.Value.transform.Find("TimeLeft").GetComponent<TMP_Text>();
+            if (timeText != null && float.TryParse(timeText.text.Replace("Time: ", ""), out float time))
+            {
+                return time;
+            }
+            else
+            {
+                Debug.LogWarning("TimeLeft text parsing failed!");
+                return 0f; // Default to 0 if parsing fails
+            }
+        })
+        .ToList();
         for (int i = 0; i < sortedPanels.Count; i++)
         {
             sortedPanels[i].Value.transform.SetSiblingIndex(i);

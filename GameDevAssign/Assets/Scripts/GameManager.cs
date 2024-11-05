@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
+
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -75,6 +75,10 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void Update()
+    {
+        CheckGameOver();
+    }
     // New method to spawn obstacles randomly
     public void SpawnObstacles(int count)
     {
@@ -125,7 +129,7 @@ public class GameManager : MonoBehaviour
             spawnPoint = new Vector3(
                 Random.Range(-mapBounds.x / 2, mapBounds.x / 2),
                 Random.Range(-mapBounds.y / 2, mapBounds.y / 2),
-                -10f
+                -9f
             );
 
             isValid = true;
@@ -177,14 +181,14 @@ public class GameManager : MonoBehaviour
         StartZoom(zoomOutSize, duration);        // Start zoom out effect
     }
 
-    public void StartCollisionZoom(Vector3 collisionPoint, float targetSize, float duration,float delay, System.Action onComplete)
+    public void StartCollisionZoom(Vector3 collisionPoint, float targetSize, float duration, float delay, System.Action onComplete)
     {
         foreach (var player in players)
         {
             player.GetComponent<Character>().isClampingEnabled = false;
         }
 
-        StartCoroutine(CollisionZoomCoroutine(collisionPoint, targetSize, duration, delay,() =>
+        StartCoroutine(CollisionZoomCoroutine(collisionPoint, targetSize, duration, delay, () =>
         {
             // Re-enable clamping after zoom completes
             foreach (var player in players)
@@ -237,11 +241,38 @@ public class GameManager : MonoBehaviour
 
     public void CheckGameOver()
     {
-        // Pause the game
-        Time.timeScale = 0;
+
+
+        bool isGameOver = true; // Assume game is over until we find a player with time left
+
+        foreach (var player in players)
+        {
+            var character = player.GetComponent<Character>();
+            if (character.remainingTime > 0)
+            {
+                isGameOver = false; // At least one player has time left
+                break;
+            }
+        }
+
+        if (isGameOver)
+        {
+            Time.timeScale = 0; // Pause the game
+            GameUIManager.Instance.ShowGameOverScreen(); // Show the game over UI
+            ShowLeaderboard(); // Display the leaderboard
+        }
 
         // Show Game Over UI (this requires a UI element to be set up in the scene)
         GameUIManager.Instance.ShowGameOverScreen();
+    }
+
+    private void ShowLeaderboard()
+    {
+        foreach (var player in players)
+        {
+            var character = player.GetComponent<Character>();
+            GameUIManager.Instance.AddLeaderboardEntry(character.playerNumber, character.remainingTime);
+        }
     }
 
 

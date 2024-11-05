@@ -26,7 +26,7 @@ public class Character : MonoBehaviour
 
     public float stateSwitchCooldown = 5.0f;
     private float lastStateSwitchTime;
-    public AudioClip[] collisionSounds;  // Array to hold collision sound effects
+    // public AudioClip[] collisionSounds;  // Array to hold collision sound effects
     private AudioSource audioSource;
 
     Vector2 targetVelocity;
@@ -188,7 +188,8 @@ public class Character : MonoBehaviour
 
             otherCharacter = other.gameObject.GetComponent<Character>();
         }
-        else{
+        else
+        {
             return;
         }
 
@@ -197,7 +198,7 @@ public class Character : MonoBehaviour
             if (this.playerNumber > otherCharacter.playerNumber)
             {
                 Debug.Log("Collision detected, playing sound.");
-                PlayRandomCollisionSound();
+                AudioManager.Instance.PlayRandomSFX();
                 PlayerState tempState = this.state;
                 this.state = otherCharacter.state;
                 otherCharacter.state = tempState;
@@ -267,19 +268,6 @@ public class Character : MonoBehaviour
         transform.position = clampedPosition;
     }
 
-    public void PlayRandomCollisionSound()
-    {
-        if (collisionSounds.Length > 0)
-        {
-            int randomIndex = Random.Range(0, collisionSounds.Length);
-            AudioClip randomClip = collisionSounds[randomIndex];
-            audioSource.PlayOneShot(randomClip);
-        }
-        else
-        {
-            Debug.LogWarning("No collision sounds assigned in the array.");
-        }
-    }
 
 
     //TIMER STUFF
@@ -297,9 +285,7 @@ public class Character : MonoBehaviour
             timeRemaining = 0;
             timerIsRunning = false;  // Timer stops when time reaches 0
             Debug.Log($"Player {playerNumber} has been zombified!");
-            // Additional logic can be added here, such as changing state added something 
 
-            GameManager.Instance.CheckGameOver();
         }
     }
 

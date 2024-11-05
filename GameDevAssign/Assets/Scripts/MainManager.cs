@@ -17,6 +17,10 @@ public class MainManager : MonoBehaviour
         
     }
 
+    public void accessSettings(){
+        SceneManager.LoadScene("Settings");
+    }
+
     public void accessLevelScene()
     {
         SceneManager.LoadScene("LevelSelect");

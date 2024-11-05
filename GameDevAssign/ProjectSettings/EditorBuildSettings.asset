@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/gab_SampleScene.unity
     guid: bb33fd1acc2262d4394e831e9aa029c5
+  - enabled: 1
+    path: Assets/Scenes/Settings.unity
+    guid: b75e2b15424494000bb6bd63de6f4f7c
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
