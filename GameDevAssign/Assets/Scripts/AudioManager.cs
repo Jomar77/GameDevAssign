@@ -5,8 +5,8 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
     public AudioSource backgroundMusicSource; // Reference to the AudioSource for background music
-    public List<AudioSource>  sfxSourceList; 
-    
+    public List<AudioSource> sfxSourceList;
+
     private AudioSource sfxSource;// Reference to the AudioSource for sound effects
 
     private void Awake()
@@ -45,7 +45,7 @@ public class AudioManager : MonoBehaviour
 
     public AudioSource PlayRandomAudioSource()
     {
-       
+
         if (sfxSourceList.Count == 0) return null; // Ensure the list is not empty
 
         int randomIndex = Random.Range(0, sfxSourceList.Count); // Get a random index
@@ -66,7 +66,8 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.SetFloat("SFXVolume", volume);
     }
 
-    public AudioSource GetSFXVolume(){
+    public AudioSource GetSFXVolume()
+    {
         return sfxSource;
     }
 
@@ -83,9 +84,9 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySFX(AudioClip clip)
     {
-       if (clip != null)
-    {
-        sfxSource.PlayOneShot(clip, sfxSource.volume); // Use the current volume setting
-    }// Play a sound effect
+        if (clip != null)
+        {
+            sfxSource.PlayOneShot(clip, sfxSource.volume); // Use the current volume setting
+        }// Play a sound effect
     }
 }

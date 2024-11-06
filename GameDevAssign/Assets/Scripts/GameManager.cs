@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public GameObject playerPrefab;
     private List<Vector3> spawnPoints = new List<Vector3>();
     private GameObject[] players;
+    private Character[] playerCharacters;
     private Vector2 mapBounds;
 
     private Vector3 initialCameraPosition;
@@ -24,6 +25,8 @@ public class GameManager : MonoBehaviour
     public int numberOfPlayers;
 
     private Camera mainCamera;
+
+    private bool gameEnded = false;
 
     public static GameManager Instance { get; private set; }
 
@@ -47,12 +50,13 @@ public class GameManager : MonoBehaviour
         mainCamera = Camera.main;
         initialCameraPosition = mainCamera.transform.position;
         initialCameraSize = mainCamera.orthographicSize;
-        //numberOfPlayers = GameData.PlayerCount;
+        numberOfPlayers = GameData.PlayerCount;
 
         mainCamera = Camera.main;
         cameraPosition = mainCamera.transform.position;
 
         players = new GameObject[numberOfPlayers];
+        playerCharacters = new Character[numberOfPlayers];
 
         Camera cam = Camera.main;
         float cameraHeight = 2f * cam.orthographicSize;
@@ -65,7 +69,9 @@ public class GameManager : MonoBehaviour
             spawnPoints.Add(spawnPoint);
 
             players[i] = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
-            players[i].GetComponent<Character>().InitializeCharacter(i + 1, 60f);
+            playerCharacters[i] = players[i].GetComponent<Character>(); // Store Character reference
+
+            playerCharacters[i].InitializeCharacter(i + 1, 20f);
 
             GameUIManager.Instance.CreatePlayerPanel(players[i].GetComponent<Character>());
         }
@@ -75,10 +81,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void Update()
-    {
-        CheckGameOver();
-    }
+
     // New method to spawn obstacles randomly
     public void SpawnObstacles(int count)
     {
@@ -241,39 +244,27 @@ public class GameManager : MonoBehaviour
 
     public void CheckGameOver()
     {
+        // Check if any player's time has hit 0 and capture all final times.
+        if (gameEnded) return;
+        gameEnded = true;
 
 
-        bool isGameOver = true; // Assume game is over until we find a player with time left
-
-        foreach (var player in players)
+        if (gameEnded)
         {
-            var character = player.GetComponent<Character>();
-            if (character.remainingTime > 0)
+            Time.timeScale = 0;  // Pause the game
+
+            foreach (Character character in playerCharacters)
             {
-                isGameOver = false; // At least one player has time left
-                break;
+                GameUIManager.Instance.AddLeaderboardEntry(character);  // Use the final remainingTime for each player
             }
-        }
-
-        if (isGameOver)
-        {
-            Time.timeScale = 0; // Pause the game
-            GameUIManager.Instance.ShowGameOverScreen(); // Show the game over UI
-            ShowLeaderboard(); // Display the leaderboard
-        }
-
-        // Show Game Over UI (this requires a UI element to be set up in the scene)
-        GameUIManager.Instance.ShowGameOverScreen();
-    }
-
-    private void ShowLeaderboard()
-    {
-        foreach (var player in players)
-        {
-            var character = player.GetComponent<Character>();
-            GameUIManager.Instance.AddLeaderboardEntry(character.playerNumber, character.remainingTime);
+            GameUIManager.Instance.SortLeaderboardPanels();
+            GameUIManager.Instance.ShowGameOverScreen();  // Show the game over UI
         }
     }
+
+
+
+
 
 
 

@@ -21,7 +21,7 @@ public class Character : MonoBehaviour
     public PlayerState state = PlayerState.isCiv;
 
     // Timer fields
-    public float timeRemaining = 60f; // 1 minute timer
+    private float timeRemaining = 20; // 1 minute timer
     private bool timerIsRunning = false;
 
     public float stateSwitchCooldown = 5.0f;
@@ -45,13 +45,13 @@ public class Character : MonoBehaviour
     public float moveSpeed;
     private float turnSpeed;
 
-    public void Start()
+    void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         audioSource = GetComponent<AudioSource>();
     }
 
-    public void Update()
+    void Update()
     {
         handleInput(playerNumber);
         UpdateState();
@@ -60,7 +60,7 @@ public class Character : MonoBehaviour
         {
             UpdateTimer();
         }
-
+        GameUIManager.Instance.UpdateleaderBoardInfo(playerNumber, timeRemaining); ;
         GameUIManager.Instance.UpdatePlayerInfo(playerNumber, timeRemaining);
 
     }
@@ -286,6 +286,8 @@ public class Character : MonoBehaviour
             timerIsRunning = false;  // Timer stops when time reaches 0
             Debug.Log($"Player {playerNumber} has been zombified!");
 
+
+            GameManager.Instance.CheckGameOver();
         }
     }
 

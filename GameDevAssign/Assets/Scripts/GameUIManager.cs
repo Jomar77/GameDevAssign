@@ -17,6 +17,7 @@ public class GameUIManager : MonoBehaviour
     public GameObject leaderboardItemPrefab;
     public Transform leaderboardPanel;
     private Dictionary<int, GameObject> playerPanels = new Dictionary<int, GameObject>();
+    private Dictionary<int, GameObject> leaderboardPanels = new Dictionary<int, GameObject>();
 
     private static GameUIManager _instance;
 
@@ -39,22 +40,20 @@ public class GameUIManager : MonoBehaviour
 
     private void Awake()
     {
-        // Ensure there is only one instance of the GameUIManager
         if (_instance != null && _instance != this)
         {
-            Destroy(gameObject); // Destroy the extra instance if it exists
+            Destroy(gameObject);
         }
         else
         {
             _instance = this;
-            DontDestroyOnLoad(gameObject); // Optional: if you want it to persist across scenes
+            DontDestroyOnLoad(gameObject);
         }
     }
 
     public void ShowGameOverScreen()
     {
         gameOverScreen.SetActive(true);
-        SortLeaderboard();
     }
 
     public void CreatePlayerPanel(Character player)
@@ -136,38 +135,44 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void AddLeaderboardEntry(int playerNumber, float finalTime)
+    public void AddLeaderboardEntry(Character character)
     {
-        GameObject leaderboardEntry = Instantiate(leaderboardItemPrefab, leaderboardPanel);
-    TMP_Text playerNumberText = leaderboardEntry.transform.Find("PlayerNum").GetComponent<TMP_Text>();
-    TMP_Text playerTimeText = leaderboardEntry.transform.Find("FinalTime").GetComponent<TMP_Text>();
+        int playerNumber = character.playerNumber;
+        float finalTime = character.remainingTime;
 
-    playerNumberText.text = "Player " + playerNumber;
-    playerTimeText.text = "Time: " + finalTime.ToString("F1");
-        
+        GameObject leaderboardEntry = Instantiate(leaderboardItemPrefab, leaderboardPanel);
+
+        playerInfoNum = leaderboardEntry.transform.Find("Player Num").GetComponent<TMP_Text>();
+        playerInfoNum.text = "Player " + playerNumber;
+
+
+        playerInfoTime = leaderboardEntry.transform.Find("Player Time").GetComponent<TMP_Text>();
+        playerInfoTime.text = "Time: " + Mathf.Max(0, finalTime).ToString("F1");
+
+
+
+        leaderboardPanels[character.playerNumber] = leaderboardEntry;
+
+
     }
 
-
-    private void SortLeaderboard()
+    public void UpdateleaderBoardInfo(int playerNumber, float remainingTime)
     {
-        var sortedPanels = playerPanels.OrderByDescending(panel =>
+        if (leaderboardPanels.ContainsKey(playerNumber))
         {
-            TMP_Text timeText = panel.Value.transform.Find("TimeLeft").GetComponent<TMP_Text>();
-            if (timeText != null && float.TryParse(timeText.text.Replace("Time: ", ""), out float time))
-            {
-                return time;
-            }
-            else
-            {
-                Debug.LogWarning("TimeLeft text parsing failed!");
-                return 0f; // Default to 0 if parsing fails
-            }
-        })
-        .ToList();
-        for (int i = 0; i < sortedPanels.Count; i++)
-        {
-            sortedPanels[i].Value.transform.SetSiblingIndex(i);
+            playerInfoNum = leaderboardPanels[playerNumber].transform.Find("Player Num").GetComponent<TMP_Text>();
+            playerInfoNum.text = "Player " + playerNumber;
+
+            playerInfoTime = leaderboardPanels[playerNumber].transform.Find("Player Time").GetComponent<TMP_Text>();
+            playerInfoTime.text = "Time: " + Mathf.Max(0, remainingTime).ToString("F1");
+
         }
+    }
+
+    public void SortLeaderboardPanels()
+    {
+        var sortedPanels = leaderboardPanels.OrderBy(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
+        leaderboardPanels = sortedPanels;
     }
 
     public void returnMainScene()
