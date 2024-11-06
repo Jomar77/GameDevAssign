@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 
 using UnityEngine.SceneManagement;
 
+
 public class GameManager : MonoBehaviour
 {
     //public Volume volume;
@@ -12,7 +13,7 @@ public class GameManager : MonoBehaviour
     public GameObject playerPrefab;
     private List<Vector3> spawnPoints = new List<Vector3>();
     private GameObject[] players;
-    private Character[] playerCharacters;
+    public Character[] playerCharacters;
     private Vector2 mapBounds;
 
     private Vector3 initialCameraPosition;
@@ -28,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     private bool gameEnded = false;
 
-    public static GameManager Instance { get; private set; }
+    public static GameManager Instance { get; set; }
 
     void Awake()
     {
@@ -74,12 +75,16 @@ public class GameManager : MonoBehaviour
             playerCharacters[i].InitializeCharacter(i + 1, 20f);
 
             GameUIManager.Instance.CreatePlayerPanel(players[i].GetComponent<Character>());
+            GameUIManager.Instance.AddLeaderboardEntry(players[i].GetComponent<Character>());
         }
 
         AssignOneZombie();
         SpawnObstacles(20);
 
     }
+
+
+
 
 
     // New method to spawn obstacles randomly
@@ -109,6 +114,10 @@ public class GameManager : MonoBehaviour
     //    }
     //}
 
+    void Update()
+    {
+
+    }
 
 
     void AssignOneZombie()
@@ -242,6 +251,13 @@ public class GameManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
+    public void SortCharactersByRemainingTime()
+    {
+        // Sort the array by remainingTime in ascending order
+        System.Array.Sort(playerCharacters, (a, b) => a.remainingTime.CompareTo(b.remainingTime));
+
+    }
+
     public void CheckGameOver()
     {
         // Check if any player's time has hit 0 and capture all final times.
@@ -253,20 +269,9 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 0;  // Pause the game
 
-            foreach (Character character in playerCharacters)
-            {
-                GameUIManager.Instance.AddLeaderboardEntry(character);  // Use the final remainingTime for each player
-            }
-            GameUIManager.Instance.SortLeaderboardPanels();
+          
+            SortCharactersByRemainingTime();
             GameUIManager.Instance.ShowGameOverScreen();  // Show the game over UI
         }
     }
-
-
-
-
-
-
-
-
 }

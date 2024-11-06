@@ -14,6 +14,7 @@ public class GameUIManager : MonoBehaviour
     private TMP_Text playerInfoNum;
     private TMP_Text playerInfoTime;
 
+
     public GameObject leaderboardItemPrefab;
     public Transform leaderboardPanel;
     private Dictionary<int, GameObject> playerPanels = new Dictionary<int, GameObject>();
@@ -36,6 +37,12 @@ public class GameUIManager : MonoBehaviour
             }
             return _instance;
         }
+
+
+        set
+        {
+
+        }
     }
 
     private void Awake()
@@ -53,6 +60,7 @@ public class GameUIManager : MonoBehaviour
 
     public void ShowGameOverScreen()
     {
+        DisplaySortedLeaderboard();
         gameOverScreen.SetActive(true);
     }
 
@@ -88,8 +96,47 @@ public class GameUIManager : MonoBehaviour
 
         playerPanels[player.playerNumber] = newPanel;
 
-        AdjustPanelScale(newPanel);
+      
 
+    }
+
+    public GameObject pauseMenu;
+
+    private bool isPaused = false;
+
+    // Update is called once per frame
+    void Update()
+    {
+        // Check if the Escape key is pressed
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (isPaused)
+            {
+                // If the game is paused, unpause it
+                ResumeGame();
+            }
+            else
+            {
+                // If the game is not paused, pause it
+                PauseGameFunction();
+            }
+        }
+    }
+
+    // Function to pause the game
+    void PauseGameFunction()
+    {
+        isPaused = true;
+        Time.timeScale = 0f; // Pause the game (stops time)
+        pauseMenu.SetActive(true); // Show the pause menu
+    }
+
+    // Function to resume the game
+    void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f; // Resume the game (restores time)
+        pauseMenu.SetActive(false); // Hide the pause menu
     }
 
     public void UpdatePlayerInfo(int playerNumber, float remainingTime)
@@ -169,15 +216,28 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void SortLeaderboardPanels()
+    public void DisplaySortedLeaderboard()
     {
-        var sortedPanels = leaderboardPanels.OrderBy(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
-        leaderboardPanels = sortedPanels;
+
+        foreach (var character in GameManager.Instance.playerCharacters)
+        {
+            // Check if the character's playerNumber matches a key in the leaderboardPanels dictionary
+            if (leaderboardPanels.ContainsKey(character.playerNumber))
+            {
+                leaderboardPanels[character.playerNumber].transform.Find("Player Time").GetComponent<TMP_Text>().text = character.remainingTime.ToString("F2");
+
+            }
+        }
+
     }
 
     public void returnMainScene()
     {
+        
         SceneManager.LoadScene("Main Screen");
     }
+
+
+
 }
 
