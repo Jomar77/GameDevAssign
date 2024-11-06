@@ -53,9 +53,9 @@ public class SelectManager : MonoBehaviour
         {
             SceneManager.LoadScene("gab_SampleScene");
         }
-        else
+        if(Panel.sprite == jomMap)
         {
-            SceneManager.LoadScene("jom_Scene");
+            SceneManager.LoadScene("jom_SampleScene");
         }
     }
 
