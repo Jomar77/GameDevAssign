@@ -233,7 +233,6 @@ public class GameUIManager : MonoBehaviour
 
     public void returnMainScene()
     {
-        
         SceneManager.LoadScene("Main Screen");
     }
 

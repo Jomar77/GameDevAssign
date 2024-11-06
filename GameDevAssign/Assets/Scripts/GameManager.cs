@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
             players[i] = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
             playerCharacters[i] = players[i].GetComponent<Character>(); // Store Character reference
 
-            playerCharacters[i].InitializeCharacter(i + 1, 20f);
+            playerCharacters[i].InitializeCharacter(i + 1, 60f);
 
             GameUIManager.Instance.CreatePlayerPanel(players[i].GetComponent<Character>());
             GameUIManager.Instance.AddLeaderboardEntry(players[i].GetComponent<Character>());

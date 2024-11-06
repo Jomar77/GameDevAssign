@@ -21,7 +21,7 @@ public class Character : MonoBehaviour
     public PlayerState state = PlayerState.isCiv;
 
     // Timer fields
-    private float timeRemaining = 20; // 1 minute timer
+    private float timeRemaining = 60; // 1 minute timer
     private bool timerIsRunning = false;
 
     public float stateSwitchCooldown = 5.0f;
@@ -60,7 +60,7 @@ public class Character : MonoBehaviour
         {
             UpdateTimer();
         }
-        GameUIManager.Instance.UpdateleaderBoardInfo(playerNumber, timeRemaining); ;
+        GameUIManager.Instance.UpdateleaderBoardInfo(playerNumber, timeRemaining);
         GameUIManager.Instance.UpdatePlayerInfo(playerNumber, timeRemaining);
 
     }

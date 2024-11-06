@@ -169,8 +169,8 @@ MonoBehaviour:
   - {fileID: 5534406054554112306, guid: 66fd244ccfa2e48fd8da74d6c6c2598d, type: 3}
   - {fileID: 7651500259926354413, guid: a8654b1d21fc02740a9b9ea169dc380c, type: 3}
   - {fileID: 3396235538653248427, guid: e8aed56ae6e354add92db95cc58c280c, type: 3}
-  safeDistance: 30
-  numberOfPlayers: 0
+  safeDistance: 5
+  numberOfPlayers: 3
 --- !u!1 &436070390
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,6 +351,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5276535429075753162, guid: d612fc4d9a63142d788d6acedfa9344c, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2042907488}
+    - target: {fileID: 5276535429075753162, guid: d612fc4d9a63142d788d6acedfa9344c, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: returnMainScene
+      objectReference: {fileID: 0}
     - target: {fileID: 8419479531584026208, guid: d612fc4d9a63142d788d6acedfa9344c, type: 3}
       propertyPath: m_Name
       value: Canvas
@@ -373,6 +381,11 @@ RectTransform:
 --- !u!224 &514727255 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4338490351142242501, guid: d612fc4d9a63142d788d6acedfa9344c, type: 3}
+  m_PrefabInstance: {fileID: 514727252}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &514727256 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3956089550188401209, guid: d612fc4d9a63142d788d6acedfa9344c, type: 3}
   m_PrefabInstance: {fileID: 514727252}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &617528382
@@ -606,7 +619,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPanelPrefab: {fileID: 6406311060374946305, guid: c5ada1c1631d1a843a9e01ca209b9380, type: 3}
   panelParent: {fileID: 514727255}
-  gameOverScreen: {fileID: 1060330650123741033, guid: 6e085024a9c0842608f78ab1856cf5e9, type: 3}
+  gameOverScreen: {fileID: 514727256}
   leaderboardItemPrefab: {fileID: 121598046967184345, guid: f00e831ef744a084fb87fa9c0939377e, type: 3}
   leaderboardPanel: {fileID: 514727254}
   pauseMenu: {fileID: 514727253}
